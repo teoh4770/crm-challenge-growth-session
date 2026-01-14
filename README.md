@@ -12,12 +12,12 @@ Since we are following TDD, Claude recommend starting with the authentication te
 ## 1. Project Setup & Configuration
 
 ### AC 1.1: Laravel + Inertia + Vue 3 Setup
-- [ ] Fresh Laravel 11.x installation
-- [ ] Inertia.js installed and configured
-- [ ] Vue 3 with `<script setup>` syntax
-- [ ] PrimeVue installed with theme configuration
-- [ ] Vite configured for Vue SFC compilation
-- [ ] PrimeIcons available globally
+- [X] Fresh Laravel 11.x installation
+- [X] Inertia.js installed and configured
+- [X] Vue 3 with `<script setup>` syntax
+- [X] PrimeVue installed with theme configuration
+- [X] Vite configured for Vue SFC compilation
+- [X] PrimeIcons available globally
 
 **Test**: `php artisan about` shows correct versions
 
@@ -26,10 +26,10 @@ Since we are following TDD, Claude recommend starting with the authentication te
 ## 2. Database Design & Models
 
 ### AC 2.1: User Model Enhancement
-- [ ] Users table has: `name`, `email`, `email_verified_at`, `password`, `remember_token`, `deleted_at`
-- [ ] User model uses `SoftDeletes` trait
-- [ ] User model has `HasFactory` and `Notifiable` traits
-- [ ] Email verification implemented via `MustVerifyEmail` interface
+- [X] Users table has: `name`, `email`, `email_verified_at`, `password`, `remember_token`, `deleted_at`
+- [X] User model uses `SoftDeletes` trait
+- [hold] User model has `HasFactory` and `Notifiable` traits
+- [hold] Email verification implemented via `MustVerifyEmail` interface
 
 **Tests**:
 ```php
@@ -38,16 +38,16 @@ test('user has email verified at timestamp')
 ```
 
 ### AC 2.2: Client Model
-- [ ] Clients table: `name`, `email`, `phone`, `company`, `address`, `status` (active/inactive), `deleted_at`, timestamps
-- [ ] Client model uses `SoftDeletes`
-- [ ] Client has `status` scope for active clients: `scopeActive($query)`
-- [ ] Client has accessor for formatted dates: `getCreatedAtAttribute()` returns m/d/Y format
-- [ ] Client `hasMany` Projects
+- [X] Clients table: `name`, `email`, `phone`, `company`, `address`, `status` (active/inactive), `deleted_at`, timestamps
+- [X] Client model uses `SoftDeletes`
+- [X] Client has `status` scope for active clients: `scopeActive($query)`
+- [X] Client has accessor for formatted dates: `getCreatedAtAttribute()` returns m/d/Y format
+- [X] Client `hasMany` Projects
 - [ ] Client `morphMany` Media (Spatie)
 
 **Tests**:
 ```php
-test('can create client with valid data')
+test('can create client with valid data') 
 test('active scope returns only active clients')
 test('created_at accessor returns formatted date')
 test('client has many projects relationship')
@@ -346,11 +346,11 @@ test('projects have assigned users')
 
 ### AC 6.3: Clients Pages
 - [ ] Clients index page with PrimeVue DataTable
-    - Columns: Name, Email, Company, Status, Actions
-    - Pagination (server-side via Inertia)
-    - Filter by status (active/inactive) with Dropdown
-    - Search by name/email with InputText (debounced)
-    - Create button opens Dialog
+    - [X] Columns: Name, Email, Company, Status, Actions
+    - [ ] Pagination (server-side via Inertia)
+    - [ ] Filter by status (active/inactive) with Dropdown
+    - [ ] Search by name/email with InputText (debounced)
+    - [ ] Create button opens Dialog
 - [ ] Client show page with TabView
     - Overview tab: client details
     - Projects tab: nested DataTable
