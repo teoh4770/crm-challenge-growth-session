@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('company');
             $table->string('address');
             $table->enum('status', collect(StatusEnum::cases())->map(fn ($status) => $status->value)->toArray());
-
-            $table->enum('status', ['active', 'inactive']);
             $table->softDeletes();
             $table->timestamps();
         });
