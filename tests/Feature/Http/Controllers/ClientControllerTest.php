@@ -48,7 +48,7 @@ class ClientControllerTest extends TestCase
     public function test_cannot_create_client_with_invalid_data(array $client)
     {
         // Arrange
-        $client = [...$client, 'status' => StatusEnum::Inactive->value];
+        $client['status'] = StatusEnum::Inactive->value;
 
         // Act
         $response = $this->post(route('clients.store'), $client);
@@ -93,7 +93,7 @@ class ClientControllerTest extends TestCase
         $client = client::factory()->create();
         $clientWithAura = client::factory()->raw(["name" => "Aura"]);
 
-        $clientWithAura = [...$clientWithAura, 'status' => StatusEnum::Active->value];
+        $clientWithAura['status'] = StatusEnum::Active->value;
 
         $response = $this->put(route('clients.update', $client), $clientWithAura);
         $response->assertRedirect(route('clients.show', $client));
