@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
-use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
@@ -44,9 +44,9 @@ class ClientController extends Controller
     {
     }
 
-    public function update(Request $request, Client $client)
+    public function update(UpdateClientRequest $request, Client $client)
     {
-        $client->update($request->all());
+        $client->update($request->validated());
 
         return redirect()->route('clients.show', $client)
             ->with('success', 'Client updated successfully');
