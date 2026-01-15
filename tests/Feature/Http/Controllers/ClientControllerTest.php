@@ -5,6 +5,7 @@ namespace Tests\Feature\Http\Controllers;
 
 use App\Enums\StatusEnum;
 use App\Models\Client;
+use App\Models\Project;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -47,7 +48,7 @@ class ClientControllerTest extends TestCase
     public function test_cannot_create_client_with_invalid_data(array $client)
     {
         // Arrange
-        $client = [...$client, 'status' => StatusEnum::Inactive->value];
+        $client['status'] = StatusEnum::Inactive->value;
 
         // Act
         $response = $this->post(route('clients.store'), $client);
@@ -72,17 +73,78 @@ class ClientControllerTest extends TestCase
 
     public function test_can_show_single_client_with_projects()
     {
-        $this->markTestSkipped();
+        $client = Client::factory()->has(Project::factory())->create();
+        $project = $client->projects->first();
+
+        $response = $this->get(route('clients.show', $client));
+
+        $response
+            ->assertStatus(200)
+            ->assertSeeInOrder([
+                $client->name,
+                $project->name,
+                $project->description,
+                $project->status,
+            ]);
     }
 
     public function test_can_update_client_with_valid_data()
     {
-        $this->markTestSkipped();
+        $client = client::factory()->create();
+        $clientWithAura = client::factory()->raw(["name" => "Aura"]);
+
+        $clientWithAura['status'] = StatusEnum::Active->value;
+
+        $response = $this->put(route('clients.update', $client), $clientWithAura);
+        $response->assertRedirect(route('clients.show', $client));
+        $this->assertDatabaseHas('clients', [...$clientWithAura, 'id' => $client->id]);
     }
 
-    public function test_cannot_update_client_with_invalid_data()
+    #[dataProvider('invalidClientUpdateData')]
+    public function test_cannot_update_client_with_invalid_data(Client $clientUpdateData)
     {
-        $this->markTestSkipped();
+        // Arrange
+        $currentClient = client::factory()->create();
+
+        // Act
+        $response = $this
+            ->patch(route('clients.update', $currentClient), $clientUpdateData->toArray());
+
+        // Assert
+        $response
+            ->assertSessionHasErrors()
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('clients', ['id' => $currentClient->id, ...$clientUpdateData->toArray()]);
+    }
+
+    public static function invalidClientUpdateData(): array
+    {
+        return [
+            'missing name' => ['clientUpdateData' => Client::factory()->make(["name" => ''])],
+            'missing email' => ['clientUpdateData' => Client::factory()->make(["email" => ''])],
+            'missing company' => ['clientUpdateData' => Client::factory()->make(["company" => ''])],
+            'missing address' => ['clientUpdateData' => Client::factory()->make(["address" => ''])],
+        ];
+    }
+
+    public function test_cannot_update_client_with_invalid_status()
+    {
+        // Arrange
+        $currentClient = client::factory()->create();
+        $clientUpdateData = Client::factory()->raw();
+        $clientUpdateData['status'] = 'invalid-status';
+
+        // Act
+        $response = $this
+            ->patch(route('clients.update', $currentClient), $clientUpdateData);
+
+        // Assert
+        $response
+            ->assertSessionHasErrors()
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('clients', ['id' => $currentClient->id, ...$clientUpdateData]);
     }
 
 
