@@ -147,11 +147,11 @@ test('user can request new verification email')
 ```
 
 ### AC 3.4: Roles & Permissions (Spatie)
-- [ ] Spatie Permission package installed
-- [ ] Two roles seeded: `admin`, `user`
-- [ ] Permissions seeded: `manage-users`, `manage-clients`, `manage-projects`, `manage-tasks`, `view-own-projects`, `view-own-tasks`
-- [ ] Admin has all permissions
-- [ ] User has `view-own-projects`, `view-own-tasks`
+- [X] Spatie Permission package installed
+- [X] Two roles seeded: `admin`, `user`
+- [X] Permissions seeded: `manage-users`, `manage-clients`, `manage-projects`, `manage-tasks`, `view-own-projects`, `view-own-tasks`
+- [X] Admin has all permissions
+- [X] User has `view-own-projects`, `view-own-tasks`
 - [ ] Middleware: `role:admin` and `permission:manage-clients`
 
 **Tests**:

@@ -6,28 +6,44 @@ namespace Tests\Feature\Http\Controllers;
 use App\Enums\StatusEnum;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ClientControllerTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    public function test_can_list_all_clients()
+    protected function setUp(): void
     {
-        // Arrange
-        $clients = Client::factory(5)->create();
+        parent::setUp();
 
-        // Act
-        $response = $this->get(route('clients.index'));
+        $adminRole = Role::create(['name' => 'admin']);
+        $userRole = Role::create(['name' => 'user']);
 
-        // Assert
-        $response
-            ->assertStatus(200)
-            ->assertSeeInOrder([
-                ...$clients->pluck('name')->toArray()
-            ]);
+        $manageUsersPermission = Permission::create(['name' => 'manage users']);
+        $manageClientsPermission = Permission::create(['name' => 'manage clients']);
+        $manageProjectsPermission = Permission::create(['name' => 'manage projects']);
+        $manageTasksPermission = Permission::create(['name' => 'manage tasks']);
+        $viewOwnProjectsPermission = Permission::create(['name' => 'view own projects']);
+        $viewOwnTasksPermission = Permission::create(['name' => 'view own tasks']);
+
+        $adminRole->syncPermissions([
+            $manageUsersPermission,
+            $manageClientsPermission,
+            $manageProjectsPermission,
+            $manageTasksPermission,
+            $viewOwnProjectsPermission,
+            $viewOwnTasksPermission,
+        ]);
+
+        $userRole->syncPermissions([
+            $viewOwnProjectsPermission,
+            $viewOwnTasksPermission,
+        ]);
     }
 
     public function test_can_create_client_with_valid_data()
@@ -151,11 +167,28 @@ class ClientControllerTest extends TestCase
     // Authorisation/Permission test
     public function test_admin_can_list_all_clients()
     {
-        $this->markTestSkipped();
+        // Arrange
+        $clients = Client::factory()->count(5)->create();
+        $admin = User::factory()->admin()->create();
+
+        // Act
+        $response = $this->actingAs($admin)->get(route('clients.index'));
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertSeeInOrder($clients->pluck('name')->toArray());
     }
 
     public function test_user_cannot_list_clients_without_permission()
     {
-        $this->markTestSkipped();
+        // Arrange
+        Client::factory()->count(5)->create();
+        $user = User::factory()->user()->create();
+
+        // Act
+        $response = $this->actingAs($user)->get(route('clients.index'));
+
+        // Assert
+        $response->assertForbidden();
     }
 }
