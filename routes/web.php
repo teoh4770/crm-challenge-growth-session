@@ -13,6 +13,6 @@ Route::get('/', function () {
 
 Route::get('dashboard', [ClientController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('clients', ClientController::class)->middleware(['auth', 'verified']);
+Route::resource('clients', ClientController::class)->middleware('role:admin');
 
 require __DIR__.'/settings.php';
