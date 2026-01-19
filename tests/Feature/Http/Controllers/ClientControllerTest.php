@@ -193,10 +193,13 @@ class ClientControllerTest extends TestCase
 
     public function test_can_soft_delete_client()
     {
+        // Arrange
         $clients = Client::factory(3)->create();
 
+        // Act
         $response = $this->delete(route('clients.destroy', $clients->first()));
 
+        // Assert
         $response->assertRedirect(route('clients.index'));
         $this->assertDatabaseCount('clients', 3);
         $this->assertCount(2, Client::all());
