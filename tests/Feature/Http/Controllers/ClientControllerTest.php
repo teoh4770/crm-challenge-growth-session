@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ClientControllerTest extends TestCase
@@ -71,6 +72,9 @@ class ClientControllerTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $response->assertSeeInOrder($clients->pluck('name')->toArray());
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('clients', $clients->count()));
     }
 
     public function test_user_cannot_list_clients_without_permission()

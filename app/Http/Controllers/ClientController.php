@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use Inertia\Inertia;
 
 class ClientController extends Controller
 {
@@ -16,7 +17,7 @@ class ClientController extends Controller
 
         $clients = Client::all();
 
-        return view('clients.index', [
+        return Inertia::render('Dashboard', [
             'clients' => $clients
         ]);
     }
