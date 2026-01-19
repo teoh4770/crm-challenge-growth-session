@@ -15,6 +15,6 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('clients', ClientController::class);
+Route::resource('clients', ClientController::class)->middleware(['auth', 'verified']);
 
 require __DIR__.'/settings.php';

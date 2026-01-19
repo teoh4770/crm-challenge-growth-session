@@ -17,10 +17,14 @@ class ClientControllerTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    private User $user;
+    private User $admin;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        // Setting up roles and permissions
         $adminRole = Role::create(['name' => 'admin']);
         $userRole = Role::create(['name' => 'user']);
 
@@ -44,17 +48,25 @@ class ClientControllerTest extends TestCase
             $viewOwnProjectsPermission,
             $viewOwnTasksPermission,
         ]);
+
+        // Setting up users
+        $this->user = User::factory()->user()->create();
+        $this->admin = User::factory()->admin()->create();
     }
 
-    // Authorisation/Permission test
+    public function test_list_clients_requires_authentication()
+    {
+        $this->get(route('clients.index'))
+            ->assertRedirect('/login');
+    }
+
     public function test_admin_can_list_all_clients()
     {
         // Arrange
         $clients = Client::factory()->count(5)->create();
-        $admin = User::factory()->admin()->create();
 
         // Act
-        $response = $this->actingAs($admin)->get(route('clients.index'));
+        $response = $this->actingAs($this->admin)->get(route('clients.index'));
 
         // Assert
         $response->assertStatus(200);
@@ -65,13 +77,24 @@ class ClientControllerTest extends TestCase
     {
         // Arrange
         Client::factory()->count(5)->create();
-        $user = User::factory()->user()->create();
 
         // Act
-        $response = $this->actingAs($user)->get(route('clients.index'));
+        $response = $this->actingAs($this->user)->get(route('clients.index'));
 
         // Assert
         $response->assertForbidden();
+    }
+
+    public function test_create_client_requires_authentication()
+    {
+        // Arrange
+        $client = Client::factory()->raw(["status" => StatusEnum::Inactive->value]);
+
+        // Act
+        $response = $this->post(route('clients.store'), $client);
+
+        // Assert
+        $response->assertRedirect('/login');
     }
 
     public function test_can_create_client_with_valid_data()
@@ -80,7 +103,8 @@ class ClientControllerTest extends TestCase
         $client = Client::factory()->raw(["status" => StatusEnum::Inactive->value]);
 
         // Act
-        $response = $this->post(route('clients.store'), $client);
+        $response = $this->actingAs($this->admin)
+            ->post(route('clients.store'), $client);
 
         // Assert
         $response->assertRedirect(route('clients.index'));
@@ -95,7 +119,8 @@ class ClientControllerTest extends TestCase
         $client['status'] = StatusEnum::Inactive->value;
 
         // Act
-        $response = $this->post(route('clients.store'), $client);
+        $response = $this->actingAs($this->admin)
+            ->post(route('clients.store'), $client);
 
         // Assert
         $response
@@ -115,12 +140,21 @@ class ClientControllerTest extends TestCase
         ];
     }
 
+    public function test_show_single_client_with_projects_requires_authentication()
+    {
+        $client = Client::factory()->has(Project::factory())->create();
+
+        $response = $this->get(route('clients.show', $client));
+
+        $response->assertRedirect('/login');
+    }
+
     public function test_can_show_single_client_with_projects()
     {
         $client = Client::factory()->has(Project::factory())->create();
         $project = $client->projects->first();
 
-        $response = $this->get(route('clients.show', $client));
+        $response = $this->actingAs($this->admin)->get(route('clients.show', $client));
 
         $response
             ->assertStatus(200)
@@ -132,7 +166,7 @@ class ClientControllerTest extends TestCase
             ]);
     }
 
-    public function test_can_update_client_with_valid_data()
+    public function test_update_client_requires_authentication()
     {
         $client = client::factory()->create();
         $clientWithAura = client::factory()->raw(["name" => "Aura"]);
@@ -140,6 +174,17 @@ class ClientControllerTest extends TestCase
         $clientWithAura['status'] = StatusEnum::Active->value;
 
         $response = $this->put(route('clients.update', $client), $clientWithAura);
+        $response->assertRedirect('/login');
+    }
+
+    public function test_can_update_client_with_valid_data()
+    {
+        $client = client::factory()->create();
+        $clientWithAura = client::factory()->raw(["name" => "Aura"]);
+
+        $clientWithAura['status'] = StatusEnum::Active->value;
+
+        $response = $this->actingAs($this->admin)->put(route('clients.update', $client), $clientWithAura);
         $response->assertRedirect(route('clients.show', $client));
         $this->assertDatabaseHas('clients', [...$clientWithAura, 'id' => $client->id]);
     }
@@ -151,7 +196,7 @@ class ClientControllerTest extends TestCase
         $currentClient = Client::factory()->create();
 
         // Act
-        $response = $this
+        $response = $this->actingAs($this->admin)
             ->patch(route('clients.update', $currentClient), $clientUpdateData->toArray());
 
         // Assert
@@ -180,7 +225,7 @@ class ClientControllerTest extends TestCase
         $clientUpdateData['status'] = 'invalid-status';
 
         // Act
-        $response = $this
+        $response = $this->actingAs($this->admin)
             ->patch(route('clients.update', $currentClient), $clientUpdateData);
 
         // Assert
@@ -191,13 +236,25 @@ class ClientControllerTest extends TestCase
         $this->assertDatabaseMissing('clients', ['id' => $currentClient->id, ...$clientUpdateData]);
     }
 
-    public function test_can_soft_delete_client()
+    public function test_delete_client_requires_authentication()
     {
         // Arrange
         $clients = Client::factory(3)->create();
 
         // Act
         $response = $this->delete(route('clients.destroy', $clients->first()));
+
+        // Assert
+        $response->assertRedirect('/login');
+    }
+
+    public function test_can_soft_delete_client()
+    {
+        // Arrange
+        $clients = Client::factory(3)->create();
+
+        // Act
+        $response = $this->actingAs($this->admin)->delete(route('clients.destroy', $clients->first()));
 
         // Assert
         $response->assertRedirect(route('clients.index'));
