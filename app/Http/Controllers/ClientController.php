@@ -11,10 +11,6 @@ class ClientController extends Controller
 {
     public function index()
     {
-        if (request()->user()->cannot('manage clients')) {
-            abort(403);
-        }
-
         $clients = Client::all();
 
         return Inertia::render('Dashboard', [

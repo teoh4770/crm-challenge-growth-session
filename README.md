@@ -152,7 +152,7 @@ test('user can request new verification email')
 - [X] Permissions seeded: `manage-users`, `manage-clients`, `manage-projects`, `manage-tasks`, `view-own-projects`, `view-own-tasks`
 - [X] Admin has all permissions
 - [X] User has `view-own-projects`, `view-own-tasks`
-- [ ] Middleware: `role:admin` and `permission:manage-clients`
+- [X] Middleware: `role:admin` and `permission:manage-clients` (since Spatie Permission package comes with those already)
 
 **Tests**:
 ```php
