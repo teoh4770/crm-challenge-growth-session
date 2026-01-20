@@ -265,4 +265,13 @@ class ClientControllerTest extends TestCase
         $this->assertDatabaseCount('clients', 3);
         $this->assertCount(2, Client::all());
     }
+
+    public function test_can_show_create_client_page()
+    {
+        $response = $this->actingAs($this->admin)->get(route('clients.create'));
+
+        $response->assertStatus(200)
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Create'));
+    }
 }
