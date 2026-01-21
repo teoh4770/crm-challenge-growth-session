@@ -20,7 +20,7 @@ class ClientController extends Controller
 
     public function create()
     {
-        return Inertia::render('Create');
+        return Inertia::render('Client/Create');
     }
 
     public function store(CreateClientRequest $request)

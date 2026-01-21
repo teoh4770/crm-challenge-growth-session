@@ -117,7 +117,7 @@ class ClientControllerTest extends TestCase
         // Assert
         $response->assertStatus(200)
             ->assertInertia(fn(Assert $page) => $page
-                ->component('Create'));
+                ->component('Client/Create'));
     }
 
     // STORE
