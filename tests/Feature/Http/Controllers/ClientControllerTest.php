@@ -87,7 +87,7 @@ class ClientControllerTest extends TestCase
         $response->assertSeeInOrder($clients->pluck('name')->toArray());
         $response->assertInertia(fn(Assert $page) => $page
             ->component('Client/Index')
-            ->has('clients', $clients->count()));
+            ->has('clients.data', $clients->count()));
     }
 
     // CREATE
@@ -286,7 +286,7 @@ class ClientControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Client/Edit')
-                ->has('client', fn (Assert $page) => $page
+                ->has('client.data', fn (Assert $page) => $page
                     ->where('id', $client->id)
                     ->etc()
                 )

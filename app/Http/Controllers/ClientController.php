@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use Inertia\Inertia;
 
@@ -14,7 +15,7 @@ class ClientController extends Controller
         $clients = Client::all();
 
         return Inertia::render('Client/Index', [
-            'clients' => $clients
+            'clients' => ClientResource::collection($clients)
         ]);
     }
 
@@ -45,7 +46,7 @@ class ClientController extends Controller
     public function edit(Client $client)
     {
         return Inertia::render('Client/Edit', [
-            'client' => $client
+            'client' => new ClientResource($client)
         ]);
     }
 
