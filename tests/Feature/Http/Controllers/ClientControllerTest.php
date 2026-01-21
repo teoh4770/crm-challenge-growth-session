@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ClientControllerTest extends TestCase
@@ -71,6 +72,9 @@ class ClientControllerTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $response->assertSeeInOrder($clients->pluck('name')->toArray());
+        $response->assertInertia(fn(Assert $page) => $page
+            ->component('Dashboard')
+            ->has('clients', $clients->count()));
     }
 
     public function test_user_cannot_list_clients_without_permission()
@@ -142,20 +146,26 @@ class ClientControllerTest extends TestCase
 
     public function test_show_single_client_with_projects_requires_authentication()
     {
+        // Arrange
         $client = Client::factory()->has(Project::factory())->create();
 
+        // Act
         $response = $this->get(route('clients.show', $client));
 
+        // Assert
         $response->assertRedirect('/login');
     }
 
     public function test_can_show_single_client_with_projects()
     {
+        // Arrange
         $client = Client::factory()->has(Project::factory())->create();
         $project = $client->projects->first();
 
+        // Act
         $response = $this->actingAs($this->admin)->get(route('clients.show', $client));
 
+        // Assert
         $response
             ->assertStatus(200)
             ->assertSeeInOrder([
@@ -168,22 +178,28 @@ class ClientControllerTest extends TestCase
 
     public function test_update_client_requires_authentication()
     {
+        // Arrange
         $client = client::factory()->create();
         $clientWithAura = client::factory()->raw(["name" => "Aura"]);
 
+        // Act
         $clientWithAura['status'] = StatusEnum::Active->value;
 
+        // Assert
         $response = $this->put(route('clients.update', $client), $clientWithAura);
         $response->assertRedirect('/login');
     }
 
     public function test_can_update_client_with_valid_data()
     {
+        // Arrange
         $client = client::factory()->create();
         $clientWithAura = client::factory()->raw(["name" => "Aura"]);
 
+        // Act
         $clientWithAura['status'] = StatusEnum::Active->value;
 
+        // Assert
         $response = $this->actingAs($this->admin)->put(route('clients.update', $client), $clientWithAura);
         $response->assertRedirect(route('clients.show', $client));
         $this->assertDatabaseHas('clients', [...$clientWithAura, 'id' => $client->id]);
@@ -260,5 +276,16 @@ class ClientControllerTest extends TestCase
         $response->assertRedirect(route('clients.index'));
         $this->assertDatabaseCount('clients', 3);
         $this->assertCount(2, Client::all());
+    }
+
+    public function test_can_show_create_client_page()
+    {
+        // Act
+        $response = $this->actingAs($this->admin)->get(route('clients.create'));
+
+        // Assert
+        $response->assertStatus(200)
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('Create'));
     }
 }

@@ -5,24 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use Inertia\Inertia;
 
 class ClientController extends Controller
 {
     public function index()
     {
-        if (request()->user()->cannot('manage clients')) {
-            abort(403);
-        }
-
         $clients = Client::all();
 
-        return view('clients.index', [
+        return Inertia::render('Dashboard', [
             'clients' => $clients
         ]);
     }
 
     public function create()
     {
+        return Inertia::render('Create');
     }
 
     public function store(CreateClientRequest $request)

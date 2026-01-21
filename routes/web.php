@@ -11,10 +11,12 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('clients', ClientController::class)->middleware(['auth', 'verified']);
+Route::resource('clients', ClientController::class)
+    ->middleware(['auth', 'verified', 'can:manage clients']);
+
+Route::get('dashboard', function() {
+    return 'dashboard';
+})->name('dashboard');
 
 require __DIR__.'/settings.php';
