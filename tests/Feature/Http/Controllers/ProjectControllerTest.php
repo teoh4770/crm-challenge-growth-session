@@ -78,7 +78,7 @@ class ProjectControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSeeInOrder($projects->pluck('id')->toArray());
         $response->assertInertia(fn ($page) => $page
-            ->component('Projects/Index')
+            ->component('Project/Index')
             ->has('projects.data', $projects->count())
         );
     }
@@ -98,7 +98,7 @@ class ProjectControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSeeInOrder($userProjects->pluck('id')->toArray());
         $response->assertInertia(fn ($page) => $page
-            ->component('Projects/Index')
+            ->component('Project/Index')
             ->has('projects.data', $userProjects->count())
         );
     }
@@ -114,14 +114,26 @@ class ProjectControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_user_can_show_create_project_page()
-    {
-        $this->markTestSkipped();
-    }
-
     public function test_admin_can_show_create_project_page()
     {
-        $this->markTestSkipped();
+        // Act
+        $response = $this->actingAs($this->admin)->get(route('projects.create'));
+
+        // Assert
+        $response->assertStatus(200)
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('Project/Create'));
+    }
+
+    public function test_user_can_show_create_project_page()
+    {
+        // Act
+        $response = $this->actingAs($this->user)->get(route('projects.create'));
+
+        // Assert
+        $response->assertStatus(200)
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('Project/Create'));
     }
 
     // STORE

@@ -19,9 +19,14 @@ class ProjectController extends Controller
             $projects = Project::where('user_id', auth()->id())->get();
         }
 
-        return Inertia::render('Projects/Index', [
+        return Inertia::render('Project/Index', [
             'projects' => ProjectResource::collection($projects)
         ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Project/Create');
     }
 
     public function store(Request $request)
