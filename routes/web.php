@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProjectController;
 use App\Models\Client;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,5 +24,8 @@ Route::get('dashboard', function() {
 Route::resource('clients', ClientController::class)
     ->except(['show'])
     ->middleware(['auth', 'verified', 'can:manage clients']);
+
+Route::resource('projects', ProjectController::class)
+    ->middleware(['auth', 'verified', 'can:manage projects', 'can:view own projects']);
 
 require __DIR__.'/settings.php';

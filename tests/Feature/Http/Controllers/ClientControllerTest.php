@@ -189,7 +189,6 @@ class ClientControllerTest extends TestCase
     }
 
     // EDIT
-    // success, fail
     public function test_show_edit_client_page_requires_authentication()
     {
         // Arrange

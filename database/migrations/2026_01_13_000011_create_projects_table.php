@@ -13,9 +13,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignIdFor(Client::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->nullable()->constrained();
-            $table->string('name');
+            $table->string('title');
             $table->string('description')->nullable();
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('status', ['open', 'closed'])->default('open');
             $table->date('deadline')->nullable();
             $table->timestamps();
         });

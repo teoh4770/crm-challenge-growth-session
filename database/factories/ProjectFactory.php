@@ -15,12 +15,12 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
-            'description' => $this->faker->text(),
-            'deadline' => $this->faker->dateTimeBetween('+1 week', '+1 month'),
             'client_id' => Client::factory(),
             'user_id' => User::factory(),
-            'status' => 'active',
+            'title' => $this->faker->name(),
+            'description' => $this->faker->text(),
+            'status' => 'open',
+            'deadline' => $this->faker->dateTimeBetween('+1 week', '+1 month'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
