@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\CreateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ class ProjectController extends Controller
         return Inertia::render('Project/Create');
     }
 
-    public function store(StoreProjectRequest $request)
+    public function store(CreateProjectRequest $request)
     {
         Project::create($request->validated());
 
@@ -44,6 +44,10 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
+        if (auth()->user()->cannot('manage projects') && $project->user->id !== auth()->id()) {
+            abort(403);
+        }
+
         return Inertia::render('Project/Edit', [
             'project' => new ProjectResource($project)
         ]);

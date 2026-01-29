@@ -6,7 +6,7 @@ use App\Enums\ProjectStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreProjectRequest extends FormRequest
+class CreateProjectRequest extends FormRequest
 {
     public function rules(): array
     {

@@ -144,14 +144,14 @@ class ProjectControllerTest extends TestCase
 
     public function test_user_can_create_project_with_valid_data()
     {
-        $project = Project::factory()->make();
+        $project = Project::factory()->raw();
         $project['deadline'] = '2026-02-24 03:45:20';
 
-        $response = $this->actingAs($this->user)->post(route('projects.store'), $project->toArray());
+        $response = $this->actingAs($this->user)->post(route('projects.store'), $project);
 
         $response->assertRedirect(route('projects.index'));
         $this->assertDatabaseCount('projects', 1);
-        $this->assertDatabaseHas('projects', $project->first()->toArray());
+        $this->assertDatabaseHas('projects', $project);
     }
 
     #[dataProvider('invalidProjectData')]
@@ -185,18 +185,39 @@ class ProjectControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    // both user and admin can show edit page with project data being populated
     public function test_admin_can_access_projects_edit_page_with_any_project()
     {
-        $project = Project::factory()->create();
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id
+        ]);
 
         $response = $this->actingAs($this->admin)->get(route('projects.edit', $project));
 
         $response->assertStatus(200);
         $response->assertInertia(fn($page) => $page
             ->component('Project/Edit')
-            ->has('project', $project)
+            ->has('project.data', fn(Assert $page) => $page->where('id', $project->id)->etc())
         );
+    }
+
+    public function test_user_can_access_projects_edit_page_with_personal_project_only()
+    {
+        $personalProject = Project::factory()->create([
+            'user_id' => $this->user->id
+        ]);
+        $otherPersonProject = Project::factory()->create();
+
+        $response = $this->actingAs($this->user)->get(route('projects.edit', $personalProject));
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn($page) => $page
+            ->component('Project/Edit')
+            ->has('project.data', fn(Assert $page) => $page->where('id', $personalProject->id)->etc())
+        );
+
+        $response = $this->actingAs($this->user)->get(route('projects.edit', $otherPersonProject));
+
+        $response->assertForbidden();
     }
 
     // UPDATE
