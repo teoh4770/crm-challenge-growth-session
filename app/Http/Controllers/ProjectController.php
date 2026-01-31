@@ -68,8 +68,22 @@ class ProjectController extends Controller
             abort(403);
         }
 
+        $isAdmin = auth()->user()->can('manage projects');
+
+        $users = UserResource::collection(User::all());
+        $clients = $isAdmin ? ClientResource::collection(Client::all()) : ClientResource::collection(Client::where('user_id', auth()->id())->get());
+        $projectStatuses = collect(ProjectStatusEnum::cases())->map(function ($enum) {
+            return [
+                'label' => $enum->name,
+                'value' => $enum->value,
+            ];
+        });
+
         return Inertia::render('Project/Edit', [
-            'project' => new ProjectResource($project)
+            'project' => new ProjectResource($project),
+            'users' => $users,
+            'clients' => $clients,
+            'projectStatuses' => $projectStatuses,
         ]);
     }
 
@@ -88,6 +102,6 @@ class ProjectController extends Controller
     {
         $project->delete();
 
-        return response()->json();
+        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
     }
 }

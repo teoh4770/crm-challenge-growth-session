@@ -2,9 +2,9 @@
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import type { BreadcrumbItem, Client, User } from '@/types';
+import type { BreadcrumbItem, Client, ProjectStatus, User } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,23 +22,33 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface Project {
-    title: string,
-    description: string,
-    clientId: string,
-    userId: string,
-    deadline: string,
-    status: string,
+    id: number;
+    title: string;
+    description: string;
+    client: Client;
+    user: User;
+    deadline: string;
+    status: string;
 }
 
 interface ProjectEditProps {
     project: {
-        data: Project
-    }
+        data: Project;
+    };
+    users: {
+        data: User[];
+    };
+    clients: {
+        data: Client[];
+    };
+    projectStatuses: ProjectStatus[];
 }
 
 defineProps<ProjectEditProps>();
 
-const isActive = ref(false);
+const currentDate = computed(() => {
+    return new Date().toISOString().split('T')[0];
+});
 </script>
 
 <template>
@@ -51,7 +61,7 @@ const isActive = ref(false);
             <div class="card">
                 <Form
                     class="grid gap-4"
-                    :action="ProjectController.store()"
+                    :action="ProjectController.update(project.data.id)"
                     #default="{ errors }"
                 >
                     <div class="flex flex-col gap-1">
@@ -65,6 +75,7 @@ const isActive = ref(false);
                             id="title"
                             type="text"
                             name="title"
+                            :value="project.data.title"
                             class="border p-1"
                             :class="{
                                 'border-red-500': errors['title'],
@@ -86,6 +97,7 @@ const isActive = ref(false);
                             id="description"
                             type="text"
                             name="description"
+                            :value="project.data.description"
                             class="border p-1"
                             :class="{
                                 'border-red-500': errors['description'],
@@ -98,43 +110,60 @@ const isActive = ref(false);
 
                     <div class="flex flex-col gap-1">
                         <label
-                            for="client"
+                            for="client_id"
                             class="block text-sm/6 font-medium text-gray-900"
+                            >Client</label
                         >
-                            Client
-                        </label>
-                        <input
-                            id="client"
-                            type="text"
-                            name="client"
-                            class="border p-1"
+                        <select
+                            name="client_id"
+                            id="client_id"
+                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
                             :class="{
-                                'border-red-500': errors['client'],
+                                'border-red-500': errors['client_id'],
                             }"
-                        />
+                        >
+                            <option>Choose a client</option>
+                            <option
+                                v-for="client in clients.data"
+                                :key="client.id"
+                                :value="client.id"
+                                :selected="client.id === project.data.client?.id"
+                            >
+                                {{ client.name }}
+                            </option>
+                        </select>
                         <p class="text-xs text-red-500 italic">
-                            {{ errors['client'] }}
+                            {{ errors['client_id'] }}
                         </p>
                     </div>
 
                     <div class="flex flex-col gap-1">
                         <label
-                            for="user"
+                            for="user_id"
                             class="block text-sm/6 font-medium text-gray-900"
                         >
                             User
                         </label>
-                        <input
-                            id="user"
-                            type="text"
-                            name="user"
-                            class="border p-1"
+                        <select
+                            name="user_id"
+                            id="user_id"
+                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
                             :class="{
-                                'border-red-500': errors['user'],
+                                'border-red-500': errors['user_id'],
                             }"
-                        />
+                        >
+                            <option>Choose a user</option>
+                            <option
+                                v-for="user in users.data"
+                                :key="user.id"
+                                :value="user.id"
+                                :selected="user.id === project.data.user?.id"
+                            >
+                                {{ user.name }}
+                            </option>
+                        </select>
                         <p class="text-xs text-red-500 italic">
-                            {{ errors['user'] }}
+                            {{ errors['user_id'] }}
                         </p>
                     </div>
 
@@ -149,7 +178,9 @@ const isActive = ref(false);
                             id="deadline"
                             type="date"
                             name="deadline"
-                            class="border p-1"
+                            :value="project.data.deadline"
+                            :min="currentDate"
+                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
                             :class="{
                                 'border-red-500': errors['deadline'],
                             }"
@@ -165,18 +196,30 @@ const isActive = ref(false);
                             class="block text-sm/6 font-medium text-gray-900"
                             >Status</label
                         >
-                        <input
-                            type="hidden"
+                        <select
                             name="status"
-                            :value="isActive ? 'active' : 'inactive'"
-                        />
-                        <div class="flex items-center gap-1">
-                            <ToggleSwitch v-model="isActive" />
-                            <span>{{ isActive ? 'active' : 'inactive' }}</span>
-                        </div>
+                            id="status"
+                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+                            :class="{
+                                'border-red-500': errors['status'],
+                            }"
+                        >
+                            <option>Choose a status</option>
+                            <option
+                                v-for="projectStatus in projectStatuses"
+                                :key="projectStatus.value"
+                                :value="projectStatus.value"
+                                :selected="projectStatus.value === project.data.status"
+                            >
+                                {{ projectStatus.label }}
+                            </option>
+                        </select>
+                        <p class="text-xs text-red-500 italic">
+                            {{ errors['status'] }}
+                        </p>
                     </div>
 
-                    <Button type="submit">Create Project</Button>
+                    <Button type="submit">Update Project</Button>
                 </Form>
             </div>
         </div>

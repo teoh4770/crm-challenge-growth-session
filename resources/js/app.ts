@@ -8,6 +8,7 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { initializeTheme } from './composables/useAppearance';
 import { definePreset } from '@primeuix/themes';
+import { ConfirmationService } from 'primevue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -29,6 +30,7 @@ createInertiaApp({
                 preset: MyPreset,
             },
         });
+        app.use(ConfirmationService);
 
         app.mount(el);
     },

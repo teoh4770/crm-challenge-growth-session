@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Form, Head } from '@inertiajs/vue3';
-import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
+import { Head, router } from '@inertiajs/vue3';
+import { useConfirm } from 'primevue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -23,6 +24,32 @@ interface ProjectIndexProps {
 }
 
 defineProps<ProjectIndexProps>();
+
+const confirm = useConfirm();
+
+function deleteProject(id: number) {
+    confirm.require({
+        message: 'Are you sure you want to delete this project?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Delete',
+            severity: 'danger'
+        },
+        accept: () => {
+            const projectDestroyRoute = ProjectController.destroy(id);
+
+            router.visit(projectDestroyRoute.url, {
+                method: projectDestroyRoute.method,
+            });
+        }
+    })
+}
 </script>
 
 <template>
@@ -50,11 +77,7 @@ defineProps<ProjectIndexProps>();
                         },
                     }"
                 >
-                    <Column
-                        field="title"
-                        header="Title"
-                        :sortable="true"
-                    />
+                    <Column field="title" header="Title" :sortable="true" />
                     <Column
                         field="description"
                         header="Description"
@@ -78,25 +101,29 @@ defineProps<ProjectIndexProps>();
                             <div class="flex gap-1">
                                 <Button
                                     as="a"
-                                    :href="ProjectController.edit(slotProps.data.id).url"
+                                    :href="
+                                        ProjectController.edit(
+                                            slotProps.data.id,
+                                        ).url
+                                    "
                                     label="Edit"
                                     size="small"
                                     raised
                                 />
-                                <Form :action="ProjectController.destroy(slotProps.data.id)">
-                                    <Button
-                                        type="submit"
-                                        label="Delete"
-                                        size="small"
-                                        severity="secondary"
-                                        raised
-                                    />
-                                </Form>
+                                <Button
+                                    label="Delete"
+                                    size="small"
+                                    severity="secondary"
+                                    raised
+                                    @click="deleteProject(slotProps.data.id)"
+                                />
                             </div>
                         </template>
                     </Column>
                 </DataTable>
             </div>
         </div>
+
+        <ConfirmDialog></ConfirmDialog>
     </AppLayout>
 </template>

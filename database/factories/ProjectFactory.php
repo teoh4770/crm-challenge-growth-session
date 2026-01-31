@@ -21,7 +21,7 @@ class ProjectFactory extends Factory
             'title' => $this->faker->words(3, true),
             'description' => $this->faker->text(),
             'status' => ProjectStatusEnum::Pending->value,
-            'deadline' => $this->faker->dateTimeBetween('+1 week', '+1 month'),
+            'deadline' => $this->faker->dateTimeBetween('+1 week', '+1 month')->format('Y-m-d'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
