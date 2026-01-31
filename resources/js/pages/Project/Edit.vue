@@ -16,31 +16,29 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: ProjectController.index().url,
     },
     {
-        title: 'Create',
+        title: 'Edit',
         href: '#',
     },
 ];
 
-enum ProjectStatus {
-    Pending = 'pending',
-    InProgress = 'in_progress',
-    OnHold = 'on_hold',
-    Review = 'review',
-    Completed = 'completed',
-    Cancelled = 'cancelled',
+interface Project {
+    title: string,
+    description: string,
+    clientId: string,
+    userId: string,
+    deadline: string,
+    status: string,
 }
 
-interface ProjectCreateProps {
-    users: {
-        data: User[];
-    };
-    clients: {
-        data: Client[];
-    };
-    status: ProjectStatus;
+interface ProjectEditProps {
+    project: {
+        data: Project
+    }
 }
 
-const props = defineProps<ProjectCreateProps>();
+defineProps<ProjectEditProps>();
+
+const isActive = ref(false);
 </script>
 
 <template>
@@ -100,58 +98,43 @@ const props = defineProps<ProjectCreateProps>();
 
                     <div class="flex flex-col gap-1">
                         <label
-                            for="client_id"
+                            for="client"
                             class="block text-sm/6 font-medium text-gray-900"
-                            >Client</label
                         >
-                        <select
-                            name="client_id"
-                            id="client_id"
-                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+                            Client
+                        </label>
+                        <input
+                            id="client"
+                            type="text"
+                            name="client"
+                            class="border p-1"
                             :class="{
-                                'border-red-500': errors['client_id'],
+                                'border-red-500': errors['client'],
                             }"
-                        >
-                            <option selected>Choose a client</option>
-                            <option
-                                v-for="client in clients.data"
-                                :key="client.id"
-                                :value="client.id"
-                            >
-                                {{ client.name }}
-                            </option>
-                        </select>
+                        />
                         <p class="text-xs text-red-500 italic">
-                            {{ errors['client_id'] }}
+                            {{ errors['client'] }}
                         </p>
                     </div>
 
                     <div class="flex flex-col gap-1">
                         <label
-                            for="user_id"
+                            for="user"
                             class="block text-sm/6 font-medium text-gray-900"
                         >
                             User
                         </label>
-                        <select
-                            name="user_id"
-                            id="user_id"
-                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+                        <input
+                            id="user"
+                            type="text"
+                            name="user"
+                            class="border p-1"
                             :class="{
-                                'border-red-500': errors['user_id'],
+                                'border-red-500': errors['user'],
                             }"
-                        >
-                            <option selected>Choose a user</option>
-                            <option
-                                v-for="user in users.data"
-                                :key="user.id"
-                                :value="user.id"
-                            >
-                                {{ user.name }}
-                            </option>
-                        </select>
+                        />
                         <p class="text-xs text-red-500 italic">
-                            {{ errors['user_id'] }}
+                            {{ errors['user'] }}
                         </p>
                     </div>
 
@@ -166,7 +149,7 @@ const props = defineProps<ProjectCreateProps>();
                             id="deadline"
                             type="date"
                             name="deadline"
-                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+                            class="border p-1"
                             :class="{
                                 'border-red-500': errors['deadline'],
                             }"
@@ -182,26 +165,15 @@ const props = defineProps<ProjectCreateProps>();
                             class="block text-sm/6 font-medium text-gray-900"
                             >Status</label
                         >
-                        <select
+                        <input
+                            type="hidden"
                             name="status"
-                            id="status"
-                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
-                            :class="{
-                                'border-red-500': errors['status'],
-                            }"
-                        >
-                            <option selected>Choose a status</option>
-                            <option
-                                v-for="stat in status"
-                                :key="stat"
-                                :value="stat"
-                            >
-                                {{ stat }}
-                            </option>
-                        </select>
-                        <p class="text-xs text-red-500 italic">
-                            {{ errors['status'] }}
-                        </p>
+                            :value="isActive ? 'active' : 'inactive'"
+                        />
+                        <div class="flex items-center gap-1">
+                            <ToggleSwitch v-model="isActive" />
+                            <span>{{ isActive ? 'active' : 'inactive' }}</span>
+                        </div>
                     </div>
 
                     <Button type="submit">Create Project</Button>
