@@ -20,9 +20,9 @@ class ProjectController extends Controller
         $projects = null;
 
         if (auth()->user()->can('manage projects')) {
-            $projects = Project::all();
+            $projects = Project::with(['client', 'user'])->get();
         } else if (auth()->user()->can('view own projects')) {
-            $projects = Project::where('user_id', auth()->id())->get();
+            $projects = Project::with(['client', 'user'])->where('user_id', auth()->id())->get();
         }
 
         return Inertia::render('Project/Index', [

@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { Form, Head } from '@inertiajs/vue3';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -16,7 +16,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Todo: add type for project
 interface ProjectIndexProps {
     projects: {
         data: any[];
@@ -51,12 +50,51 @@ defineProps<ProjectIndexProps>();
                         },
                     }"
                 >
-                    <Column field="title" header="Title" :sortable="true" />
+                    <Column
+                        field="title"
+                        header="Title"
+                        :sortable="true"
+                    />
                     <Column
                         field="description"
                         header="Description"
                         :sortable="true"
-                    ></Column>
+                    />
+                    <Column
+                        field="client.name"
+                        header="Client"
+                        :sortable="true"
+                    />
+                    <Column field="title" header="Project" :sortable="true" />
+                    <Column field="user.name" header="User" :sortable="true" />
+                    <Column field="status" header="Status" :sortable="true" />
+                    <Column
+                        field="deadline"
+                        header="Deadline"
+                        :sortable="true"
+                    />
+                    <Column header="Actions">
+                        <template #body="slotProps">
+                            <div class="flex gap-1">
+                                <Button
+                                    as="a"
+                                    :href="ProjectController.edit(slotProps.data.id).url"
+                                    label="Edit"
+                                    size="small"
+                                    raised
+                                />
+                                <Form :action="ProjectController.destroy(slotProps.data.id)">
+                                    <Button
+                                        type="submit"
+                                        label="Delete"
+                                        size="small"
+                                        severity="secondary"
+                                        raised
+                                    />
+                                </Form>
+                            </div>
+                        </template>
+                    </Column>
                 </DataTable>
             </div>
         </div>
