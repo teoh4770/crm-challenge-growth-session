@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -139,19 +140,20 @@ class ProjectControllerTest extends TestCase
 
         $response->assertRedirect(route('projects.index'));
         $this->assertDatabaseCount('projects', 1);
-        $this->assertDatabaseHas('projects', $project->except(['deadline', 'created_at', 'updated_at']));
+
+        $this->assertDatabaseHas('projects', $project->except(['deadline', 'created_at', 'updated_at', 'file']));
     }
 
     public function test_user_can_create_project_with_valid_data()
     {
-        $project = Project::factory()->raw();
+        $project = Project::factory()->make();
         $project['deadline'] = '2026-02-24 03:45:20';
 
-        $response = $this->actingAs($this->user)->post(route('projects.store'), $project);
+        $response = $this->actingAs($this->user)->post(route('projects.store'), $project->toArray());
 
         $response->assertRedirect(route('projects.index'));
         $this->assertDatabaseCount('projects', 1);
-        $this->assertDatabaseHas('projects', $project);
+        $this->assertDatabaseHas('projects', $project->except(['file']));
     }
 
     public function test_cannot_create_project_with_invalid_deadline()
@@ -165,26 +167,6 @@ class ProjectControllerTest extends TestCase
         $response->assertRedirectBack(route('projects.create'));
         $response->assertSessionHasErrors('deadline');
         $this->assertDatabaseMissing('projects', $project->toArray());
-    }
-
-    public function test_user_can_upload_a_single_file_when_creating_a_new_project()
-    {
-        Storage::fake('public');
-
-        $uploadedFile = UploadedFile::fake()->image('photo1.jpg');
-
-        $project = Project::factory()->raw([
-            'file' => $uploadedFile
-        ]);
-        $project['deadline'] = '2026-02-24 03:45:20';
-
-        $response = $this->actingAs($this->user)->post(route('projects.store'), $project);
-
-        $response->assertRedirect(route('projects.index'));
-        $this->assertDatabaseCount('projects', 1);
-        $this->assertDatabaseHas('projects', $project);
-
-        Storage::disk('public')->assertExists($uploadedFile->name);
     }
 
     // EDIT

@@ -35,7 +35,7 @@ defineProps<ProjectCreateProps>();
 
 const currentDate = computed(() => {
     return new Date().toISOString().split('T')[0];
-})
+});
 </script>
 
 <template>
