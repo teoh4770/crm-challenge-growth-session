@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'uploads' => [
+        'disk' => env('APP_DISK', 'local'),
+    ]
+
 ];

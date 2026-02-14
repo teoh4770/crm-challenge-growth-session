@@ -92,11 +92,7 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        $project->update($request->safe()->except(['file']));
-
-        if ($request->file('file')) {
-           $this->storeFile($request->file('file'), $project);
-        }
+        $project->update($request->all());
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
     }
@@ -110,25 +106,5 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
-    }
-
-    private function storeFile(UploadedFile $file, Project $project)
-    {
-        $isStored = Storage::disk('local')
-            ->put($file->getClientOriginalName(), $file);
-
-        if (! $isStored) {
-            Log::error('File could not be stored.', [
-                'file' => $file->getClientOriginalName()
-            ]);
-        }
-
-        $project->files()->create([
-            'disk' => 'local',
-            'path' => 'temp/' . $file->path(),
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize(),
-        ]);
     }
 }

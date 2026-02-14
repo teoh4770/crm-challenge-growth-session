@@ -23,8 +23,8 @@ class Project extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function files(): MorphMany
+    public function medias(): MorphMany
     {
-        return $this->morphMany(File::class, 'fileable');
+        return $this->morphMany(Media::class, 'mediable');
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\UploadController;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
@@ -31,5 +32,7 @@ Route::resource('clients', ClientController::class)
 
 Route::resource('projects', ProjectController::class)
     ->middleware(['auth', 'verified']);
+
+Route::post('upload/{project?}', UploadController::class)->name('upload');
 
 require __DIR__.'/settings.php';

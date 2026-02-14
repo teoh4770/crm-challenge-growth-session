@@ -258,6 +258,4 @@ class ProjectControllerTest extends TestCase
         $response->assertRedirect(route('projects.index'));
         $this->assertDatabaseMissing('projects', $otherPeopleProject->toArray());
     }
-
-    // test('can upload media to project')
 }
