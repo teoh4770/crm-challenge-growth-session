@@ -82,6 +82,8 @@ class ProjectController extends Controller
             ];
         });
 
+        $project->load('medias');
+
         return Inertia::render('Projects/Edit', [
             'project' => new ProjectResource($project),
             'users' => $users,

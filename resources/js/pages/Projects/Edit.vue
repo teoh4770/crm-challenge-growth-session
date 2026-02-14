@@ -5,6 +5,7 @@ import { dashboard } from '@/routes';
 import type { BreadcrumbItem, Client, ProjectStatus, User } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import UploadController from '@/actions/App/Http/Controllers/UploadController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,6 +30,7 @@ interface Project {
     user: User;
     deadline: string;
     status: string;
+    medias: any[];
 }
 
 interface ProjectEditProps {
@@ -127,7 +129,9 @@ const currentDate = computed(() => {
                                 v-for="client in clients.data"
                                 :key="client.id"
                                 :value="client.id"
-                                :selected="client.id === project.data.client?.id"
+                                :selected="
+                                    client.id === project.data.client?.id
+                                "
                             >
                                 {{ client.name }}
                             </option>
@@ -209,7 +213,9 @@ const currentDate = computed(() => {
                                 v-for="projectStatus in projectStatuses"
                                 :key="projectStatus.value"
                                 :value="projectStatus.value"
-                                :selected="projectStatus.value === project.data.status"
+                                :selected="
+                                    projectStatus.value === project.data.status
+                                "
                             >
                                 {{ projectStatus.label }}
                             </option>
@@ -222,6 +228,43 @@ const currentDate = computed(() => {
                     <Button type="submit">Update Project</Button>
                 </Form>
             </div>
+
+            <Card>
+                <template #content>
+                    <Form class="grid gap-4" :action="UploadController(project.data.id)" #default="{ errors }">
+                        <div class="flex flex-col gap-1">
+                            <label
+                                for="file"
+                                class="block text-sm/6 font-medium text-primary"
+                            >
+                                File
+                            </label>
+                            <input
+                                id="file"
+                                type="file"
+                                name="file"
+                                class="border p-1"
+                                :class="{
+                                    'border-red-500': errors['file'],
+                                }"
+                            />
+                            <p class="text-xs text-red-500 italic">
+                                {{ errors['file'] }}
+                            </p>
+                        </div>
+
+                        <Button type="submit">Upload</Button>
+                    </Form>
+
+                    <p>Files from this project</p>
+                    <ul>
+                        <li v-for="file in project.data.medias" :key="file">
+                            {{ file.name }}
+                        </li>
+                    </ul>
+
+                </template>
+            </Card>
         </div>
     </AppLayout>
 </template>
