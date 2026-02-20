@@ -6,6 +6,7 @@ use App\Enums\ProjectStatusEnum;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ClientResource;
+use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\UserResource;
 use App\Models\Client;
@@ -53,7 +54,7 @@ class ProjectController extends Controller
         return Inertia::render('Projects/Create', [
             'users' => $users,
             'clients' => $clients,
-            'projectStatuses' => $projectStatuses
+            'project_statuses' => $projectStatuses
         ]);
     }
 
@@ -73,22 +74,19 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        $users = UserResource::collection(User::all());
-        $clients = ClientResource::collection(Client::all());
-        $projectStatuses = collect(ProjectStatusEnum::cases())->map(function ($enum) {
-            return [
-                'label' => $enum->name,
-                'value' => $enum->value,
-            ];
-        });
-
         $project->load('medias');
 
         return Inertia::render('Projects/Edit', [
             'project' => new ProjectResource($project),
-            'users' => $users,
-            'clients' => $clients,
-            'projectStatuses' => $projectStatuses,
+            'users' => UserResource::collection(User::all()),
+            'clients' => ClientResource::collection(Client::all()),
+            'projectStatuses' => collect(ProjectStatusEnum::cases())->map(function ($enum) {
+                return [
+                    'label' => $enum->name,
+                    'value' => $enum->value,
+                ];
+            }),
+            'projectMedias' => MediaResource::collection($project->medias)
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace Feature;
 
 use App\Http\Controllers\UploadController;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,14 @@ use Tests\TestCase;
 class UploadControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $user = User::factory()->create();
+        $this->actingAs($user);
+    }
 
     public function test_can_upload_a_project_file()
     {

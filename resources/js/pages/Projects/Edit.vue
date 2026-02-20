@@ -30,7 +30,12 @@ interface Project {
     user: User;
     deadline: string;
     status: string;
-    medias: any[];
+}
+
+interface Media {
+    id: number;
+    fileName: string;
+    size: number;
 }
 
 interface ProjectEditProps {
@@ -44,9 +49,14 @@ interface ProjectEditProps {
         data: Client[];
     };
     projectStatuses: ProjectStatus[];
+    projectMedias: {
+        data: Media[]
+    };
 }
 
-defineProps<ProjectEditProps>();
+const props = defineProps<ProjectEditProps>();
+
+console.log(props);
 
 const currentDate = computed(() => {
     return new Date().toISOString().split('T')[0];
@@ -225,44 +235,60 @@ const currentDate = computed(() => {
                         </p>
                     </div>
 
-                    <Button type="submit">Update Project</Button>
+                    <div class="flex justify-end gap-2">
+                        <Button as="a" :href="ProjectController.index().url" class="w-fit" severity="secondary">Cancel</Button>
+                        <Button type="submit" class="w-fit">Update Project</Button>
+                    </div>
                 </Form>
             </div>
 
             <Card>
                 <template #content>
-                    <Form class="grid gap-4" :action="UploadController(project.data.id)" #default="{ errors }">
-                        <div class="flex flex-col gap-1">
-                            <label
-                                for="file"
-                                class="block text-sm/6 font-medium text-primary"
-                            >
-                                File
-                            </label>
-                            <input
-                                id="file"
-                                type="file"
-                                name="file"
-                                class="border p-1"
-                                :class="{
+                    <div class="grid gap-4">
+                        <Form class="grid gap-4" :action="UploadController(project.data.id)" #default="{ errors }">
+                            <div class="flex flex-col gap-1">
+                                <label
+                                    for="file"
+                                    class="block text-sm/6 font-medium text-primary"
+                                >
+                                    File
+                                </label>
+                                <input
+                                    id="file"
+                                    type="file"
+                                    name="file"
+                                    class="border p-1"
+                                    :class="{
                                     'border-red-500': errors['file'],
                                 }"
-                            />
-                            <p class="text-xs text-red-500 italic">
-                                {{ errors['file'] }}
-                            </p>
+                                />
+                                <p class="text-xs text-red-500 italic">
+                                    {{ errors['file'] }}
+                                </p>
+                            </div>
+
+                            <Button type="submit" class="w-fit">Upload</Button>
+                        </Form>
+
+                        <div class="card">
+                            <DataTable :value="projectMedias.data" tableStyle="min-width: 50rem">
+                                <Column field="fileName" header="File Name"></Column>
+                                <Column field="size" header="Size">
+                                    <template #body="slotProps">
+                                        <span class="text-slate-300">{{ slotProps.data.size }} KB</span>
+                                    </template>
+                                </Column>
+                                <Column header="Actions">
+                                    <template #body>
+                                        <div class="space-x-2">
+                                            <Button as="a" label="Download" size="small" />
+                                            <Button as="a" label="Delete" severity="danger" size="small" />
+                                        </div>
+                                    </template>
+                                </Column>
+                            </DataTable>
                         </div>
-
-                        <Button type="submit">Upload</Button>
-                    </Form>
-
-                    <p>Files from this project</p>
-                    <ul>
-                        <li v-for="file in project.data.medias" :key="file">
-                            {{ file.name }}
-                        </li>
-                    </ul>
-
+                    </div>
                 </template>
             </Card>
         </div>

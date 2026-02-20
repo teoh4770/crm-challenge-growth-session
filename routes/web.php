@@ -33,6 +33,6 @@ Route::resource('clients', ClientController::class)
 Route::resource('projects', ProjectController::class)
     ->middleware(['auth', 'verified']);
 
-Route::post('upload/{project?}', UploadController::class)->name('upload');
+Route::post('upload/{project?}', UploadController::class)->name('upload')->middleware(['auth', 'verified']);
 
 require __DIR__.'/settings.php';

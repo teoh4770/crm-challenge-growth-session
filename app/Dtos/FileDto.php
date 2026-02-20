@@ -20,6 +20,8 @@ readonly class FileDto
 
     public function toArray(): array
     {
+        // cast -> media size to kb
+
         return [
             'name' => $this->name,
             'file_name' => $this->originalName,
