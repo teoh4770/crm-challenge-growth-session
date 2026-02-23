@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('media', function (Blueprint $table) {
+        Schema::create('medias', function (Blueprint $table) {
             $table->id();
 
             // Storing uploaded files using the original file name can be a significant issue regarding security, especially if you are not validating strongly enough.

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Models\File;
+use App\Models\Media;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -21,19 +21,12 @@ class ProjectTest extends TestCase
         test('in_progress scope filters correctly')
     */
 
-    // we can upload many files to either a project or a task
-
-    public function test_project_has_many_files()
+    public function test_project_has_many_medias()
     {
         $project = Project::factory()
-            ->hasFiles(3)
+            ->has(Media::factory()->count(3), 'medias')
             ->create();
 
-        $this->assertCount(3, $project->files);
-    }
-
-    public function test_task_has_many_files()
-    {
-        $this->markTestSkipped();
+        $this->assertCount(3, $project->medias);
     }
 }
