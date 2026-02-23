@@ -51,4 +51,13 @@ class TaskTest extends TestCase
 
         $this->assertEquals(3, $task->medias->count());
     }
+
+    public function test_task_can_be_soft_deleted()
+    {
+        $task = Task::factory()->create();
+
+        $task->delete();
+
+        $this->assertSoftDeleted($task);
+    }
 }
