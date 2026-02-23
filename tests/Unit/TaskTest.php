@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Enums\ProjectStatusEnum;
+use App\Enums\TaskStatusEnum;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -68,5 +69,18 @@ class TaskTest extends TestCase
         ]);
 
         $this->assertEquals(Carbon::parse('2026-02-22')->format('m/d/Y'), $task->due_date);
+    }
+
+    public function test_todo_scope_returns_todo_tasks()
+    {
+        $todoTasks = Task::factory()->count(2)->create([
+           'status' => TaskStatusEnum::Todo
+        ]);
+
+        $completedTasks = Task::factory()->count(2)->create([
+            'status' => TaskStatusEnum::Completed
+        ]);
+
+        $this->assertEquals($todoTasks->pluck('id'), Task::todo()->get()->pluck('id'));
     }
 }

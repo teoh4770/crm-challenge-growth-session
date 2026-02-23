@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Casts\PrettyDateCast;
 use App\Enums\TaskPriorityEnum;
 use App\Enums\TaskStatusEnum;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,5 +39,11 @@ class Task extends Model
     public function medias(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediable');
+    }
+
+    #[Scope]
+    protected function todo(Builder $query): Builder
+    {
+        return $query->where('status', TaskStatusEnum::Todo);
     }
 }
