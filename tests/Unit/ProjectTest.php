@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Enums\ProjectStatusEnum;
 use App\Models\Media;
 use App\Models\Project;
 use Carbon\Carbon;
@@ -51,5 +52,17 @@ class ProjectTest extends TestCase
         $project = Project::query()->first();
 
         $this->assertEquals(Carbon::parse($deadlineInput)->format('m/d/Y'), $project->deadline);
+    }
+
+    public function test_in_progress_scope_filters_correctly()
+    {
+        Project::factory()->count(2)->create([
+            'status' => ProjectStatusEnum::Completed
+        ]);
+        Project::factory()->count(3)->create([
+            'status' => ProjectStatusEnum::InProgress
+        ]);
+
+        $this->assertCount(3, Project::inProgress()->get());
     }
 }
