@@ -29,4 +29,14 @@ class ProjectTest extends TestCase
 
         $this->assertCount(3, $project->medias);
     }
+
+    public function test_soft_deleted_projects_are_not_in_default_queries()
+    {
+        $projects = Project::factory()->count(4)->create();
+
+        Project::query()->first()->delete();
+
+        $this->assertDatabaseCount('projects', 4);
+        $this->assertCount(3, Project::query()->get());
+    }
 }

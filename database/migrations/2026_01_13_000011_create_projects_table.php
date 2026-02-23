@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('status')->default(ProjectStatusEnum::Pending->value);
             $table->date('deadline')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
