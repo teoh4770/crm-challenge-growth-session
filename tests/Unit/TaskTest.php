@@ -83,4 +83,17 @@ class TaskTest extends TestCase
 
         $this->assertEquals($todoTasks->pluck('id'), Task::todo()->get()->pluck('id'));
     }
+
+    public function test_completed_scope_returns_completed_tasks()
+    {
+        $todoTasks = Task::factory()->count(2)->create([
+            'status' => TaskStatusEnum::Todo
+        ]);
+
+        $completedTasks = Task::factory()->count(2)->create([
+            'status' => TaskStatusEnum::Completed
+        ]);
+
+        $this->assertEquals($completedTasks->pluck('id'), Task::completed()->get()->pluck('id'));
+    }
 }

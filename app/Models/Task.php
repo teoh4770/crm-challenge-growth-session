@@ -46,4 +46,10 @@ class Task extends Model
     {
         return $query->where('status', TaskStatusEnum::Todo);
     }
+
+    #[Scope]
+    protected function completed(Builder $query): Builder
+    {
+        return $query->where('status', TaskStatusEnum::Completed);
+    }
 }
