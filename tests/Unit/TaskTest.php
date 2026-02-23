@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Enums\ProjectStatusEnum;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -31,5 +32,16 @@ class TaskTest extends TestCase
         $tasks = Task::whereBelongsTo($project)->get();
 
         $this->assertEquals($project->id, $tasks->first()->project->id);
+    }
+
+    public function test_task_belongs_to_user()
+    {
+        $user = User::factory()
+            ->hasTasks(3)
+            ->create();
+
+        $tasks = Task::whereBelongsTo($user)->get();
+
+        $this->assertEquals($user->id, $tasks->first()->user->id);
     }
 }
