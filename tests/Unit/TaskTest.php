@@ -44,4 +44,11 @@ class TaskTest extends TestCase
 
         $this->assertEquals($user->id, $tasks->first()->user->id);
     }
+
+    public function test_task_can_have_media_attachments()
+    {
+        $task = Task::factory()->hasMedias(3)->create();
+
+        $this->assertEquals(3, $task->medias->count());
+    }
 }
