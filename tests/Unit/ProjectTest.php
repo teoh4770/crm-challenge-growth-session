@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use App\Enums\ProjectStatusEnum;
-use App\Models\Media;
 use App\Models\Project;
+use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -13,16 +13,6 @@ class ProjectTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    /*
-        test('can create project with valid data')
-        test('project belongs to client')
-        test('project belongs to user')
-        test('project has many tasks')
-        test('project can have media attachments')
-        test('date accessors return formatted dates')
-        test('in_progress scope filters correctly')
-    */
-
     public function test_project_has_many_medias()
     {
         $project = Project::factory()
@@ -30,6 +20,15 @@ class ProjectTest extends TestCase
             ->create();
 
         $this->assertCount(3, $project->medias);
+    }
+
+    public function test_project_has_many_tasks()
+    {
+        $project = Project::factory()
+            ->has(Task::factory()->count(3), 'tasks')
+            ->create();
+
+        $this->assertCount(3, $project->tasks);
     }
 
     public function test_soft_deleted_projects_are_not_in_default_queries()
