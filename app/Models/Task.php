@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PrettyDateCast;
 use App\Enums\TaskPriorityEnum;
 use App\Enums\TaskStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Task extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected function casts(): array
+    {
+        return [
+            'due_date' => PrettyDateCast::class,
+            'priority' => TaskPriorityEnum::class,
+            'status' => TaskStatusEnum::class,
+        ];
+    }
 
     public function project(): BelongsTo
     {
@@ -27,14 +37,5 @@ class Task extends Model
     public function medias(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediable');
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'due_date' => 'date',
-            'priority' => TaskPriorityEnum::class,
-            'status' => TaskStatusEnum::class,
-        ];
     }
 }

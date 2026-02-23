@@ -60,4 +60,13 @@ class TaskTest extends TestCase
 
         $this->assertSoftDeleted($task);
     }
+
+    public function test_due_date_accessor_return_formatted_date()
+    {
+        $task = Task::factory()->create([
+            'due_date' => '2026-02-22',
+        ]);
+
+        $this->assertEquals(Carbon::parse('2026-02-22')->format('m/d/Y'), $task->due_date);
+    }
 }
