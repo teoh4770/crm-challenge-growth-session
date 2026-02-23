@@ -2,9 +2,9 @@ Since we are following TDD, Claude recommend starting with the authentication te
 
 # Acceptance Criteria: Laravel CRM with Vue 3 + PrimeVue
 
-**Project**: Simple CRM System for Managing Clients  
-**Approach**: TDD with Laravel Backend + Inertia.js + Vue 3 + PrimeVue Frontend  
-**Authentication**: Sanctum SPA (Cookie-based)  
+**Project**: Simple CRM System for Managing Clients
+**Approach**: TDD with Laravel Backend + Inertia.js + Vue 3 + PrimeVue Frontend
+**Authentication**: Sanctum SPA (Cookie-based)
 **Testing Focus**: Backend Laravel tests (Feature + Unit)
 
 ---
@@ -41,27 +41,25 @@ test('user has email verified at timestamp')
 - [X] Clients table: `name`, `email`, `phone`, `company`, `address`, `status` (active/inactive), `deleted_at`, timestamps
 - [X] Client model uses `SoftDeletes`
 - [X] Client has `status` scope for active clients: `scopeActive($query)`
-- [X] Client has accessor for formatted dates: `getCreatedAtAttribute()` returns m/d/Y format
+- [X] Client has accessor for formatted dates: `getCreatedAtAttribute()` returns m/d/Y format (via `PrettyDateCast`)
 - [X] Client `hasMany` Projects
-- [ ] Client `morphMany` Media (Spatie)
 
 **Tests**:
 ```php
-test('can create client with valid data') 
+test('can create client with valid data')
 test('active scope returns only active clients')
 test('created_at accessor returns formatted date')
 test('client has many projects relationship')
-test('client can have media attachments')
 test('soft deleted clients are not in default queries')
 ```
 
 ### AC 2.3: Project Model
 - [X] Projects table: `name`, `description`, `client_id`, `user_id` (assigned to), `status` (planning/in_progress/completed/on_hold), `start_date`, `deadline`, `deleted_at`, timestamps
-- [?] Project model uses `SoftDeletes`
+- [X] Project model uses `SoftDeletes`
 - [X] Project `belongsTo` Client
 - [X] Project `belongsTo` User (assigned user)
-- [?] Project `hasMany` Tasks
-- [?] Project `morphMany` Media (Spatie)
+- [] Project `hasMany` Tasks
+- [X] Project `morphMany` Media (custom `Media` model via `mediable` polymorphic relation)
 - [ ] Date accessors for `start_date` and `deadline` in m/d/Y format
 - [?] Status scope: `scopeInProgress($query)`
 
@@ -77,7 +75,7 @@ test('in_progress scope filters correctly')
 ```
 
 ### AC 2.4: Task Model
-- [ ] Tasks table: `title`, `description`, `project_id`, `user_id` (assigned to), `status` (todo/in_progress/done), `priority` (low/medium/high), `due_date`, `deleted_at`, timestamps
+- [] Tasks table: `title`, `description`, `project_id`, `user_id` (assigned to), `status` (todo/in_progress/done), `priority` (low/medium/high), `due_date`, `deleted_at`, timestamps
 - [ ] Task model uses `SoftDeletes`
 - [ ] Task `belongsTo` Project
 - [ ] Task `belongsTo` User (assigned user)
@@ -184,15 +182,17 @@ test('policy denies access return 403')
 ## 4. API Endpoints
 
 ### AC 4.1: Client API Endpoints
-- [X] GET `/api/clients` - list clients (paginated, filterable by status)
-- [X] GET `/api/clients/{client}` - show client with projects
-- [X] POST `/api/clients` - create client
-- [X] PUT `/api/clients/{client}` - update client
-- [X] DELETE `/api/clients/{client}` - soft delete client
-- [] POST `/api/clients/{client}/media` - upload client documents
-- [X] All endpoints use route model binding
-- [X] All endpoints return `ClientResource`
-- [X] All endpoints check policies
+- [ ] GET `/api/clients` - list clients (paginated, filterable by status)
+- [ ] GET `/api/clients/{client}` - show client with projects
+- [ ] POST `/api/clients` - create client
+- [ ] PUT `/api/clients/{client}` - update client
+- [ ] DELETE `/api/clients/{client}` - soft delete client
+- [ ] POST `/api/clients/{client}/media` - upload client documents
+- [ ] All endpoints use route model binding
+- [ ] All endpoints return `ClientResource`
+- [ ] All endpoints check policies
+
+> **Note**: Client CRUD is currently implemented as Inertia web routes, not `/api/` routes.
 
 **Tests**:
 ```php
@@ -208,13 +208,15 @@ test('api returns proper json structure')
 ```
 
 ### AC 4.2: Project API Endpoints
-- [X] GET `/api/projects` - list projects (user sees only assigned, admin sees all)
-- [X] GET `/api/projects/{project}` - show project with client, tasks, assigned user
-- [X] POST `/api/projects` - create project
-- [X] PUT `/api/projects/{project}` - update project
-- [X] DELETE `/api/projects/{project}` - soft delete project
-- [X] POST `/api/projects/{project}/media` - upload project files
-- [X] All endpoints return `ProjectResource`
+- [ ] GET `/api/projects` - list projects (user sees only assigned, admin sees all)
+- [ ] GET `/api/projects/{project}` - show project with client, tasks, assigned user
+- [ ] POST `/api/projects` - create project
+- [ ] PUT `/api/projects/{project}` - update project
+- [ ] DELETE `/api/projects/{project}` - soft delete project
+- [ ] POST `/api/projects/{project}/media` - upload project files
+- [ ] All endpoints return `ProjectResource`
+
+> **Note**: Project CRUD is currently implemented as Inertia web routes, not `/api/` routes. Media upload for projects is functional via `POST /upload/{project}`.
 
 **Tests**:
 ```php
@@ -302,11 +304,11 @@ test('task factory creates valid task with relationships')
 - [X] DatabaseSeeder runs all seeders
 - [X] RolePermissionSeeder creates roles and permissions
 - [X] UserSeeder creates:
-    - Admin user: admin@example.com / password
-    - Regular user: user@example.com / password
+    - Admin user: test@example.com / password
+    - Regular user: test2@example.com / password
     - Both with verified emails and assigned roles
-- [X] ClientSeeder creates 20 clients (15 active, 5 inactive)
-- [X] ProjectSeeder creates 30 projects assigned to users
+- [ ] ClientSeeder creates 20 clients (15 active, 5 inactive)
+- [X] ProjectSeeder creates projects assigned to users (15 total: 10 admin, 5 user)
 - [ ] TaskSeeder creates 50 tasks across projects
 
 **Tests**:
@@ -322,82 +324,74 @@ test('projects have assigned users')
 ## 6. Frontend (Inertia + Vue 3 + PrimeVue)
 
 ### AC 6.1: Authentication Pages
-- [ ] Login page (`/login`) with PrimeVue `InputText` and `Button`
-- [ ] Register page (`/register`) with form validation
-- [ ] Email verification notice page
-- [ ] Forgot password page (optional for junior level)
+- [X] Login page (`/login`) with form fields and button
+- [X] Register page (`/register`) with form validation
+- [X] Email verification notice page (`VerifyEmail.vue`)
+- [X] Forgot password page (`ForgotPassword.vue`)
+- [X] Reset password page (`ResetPassword.vue`)
+- [X] Two-factor challenge page (`TwoFactorChallenge.vue`)
 - [ ] Route redirect: `/` → `/login` for guests
 
 **Components**:
-- `Pages/Auth/Login.vue` with PrimeVue Card, InputText, Password, Button
-- Error messages displayed with PrimeVue Message component
+- `pages/auth/Login.vue`, `Register.vue`, `VerifyEmail.vue`, `ForgotPassword.vue`, `ResetPassword.vue`, `TwoFactorChallenge.vue`
+- Error messages displayed inline
 - Loading states on button clicks
 
 ### AC 6.2: Dashboard Layout
-- [ ] Authenticated layout with PrimeVue Menubar or Sidebar
-- [ ] Navigation items: Dashboard, Clients, Projects, Tasks, Users (admin only)
-- [ ] User menu with logout button
-- [ ] Responsive design with PrimeVue breakpoint utilities
+- [X] Authenticated layout with Sidebar
+- [X] Navigation items: Dashboard, Clients, Projects
+- [X] User menu with logout button
+- [X] Responsive design with sidebar components
 
 **Components**:
-- `Layouts/AuthenticatedLayout.vue`
-- PrimeVue Menubar with dropdown for user menu
+- Sidebar system with 25+ shared components
 - Role-based navigation visibility
 
 ### AC 6.3: Clients Pages
-- [ ] Clients index page with PrimeVue DataTable
+- [X] Clients index page (`Clients/Index.vue`) with DataTable
     - [X] Columns: Name, Email, Company, Status, Actions
     - [ ] Pagination (server-side via Inertia)
     - [ ] Filter by status (active/inactive) with Dropdown
     - [ ] Search by name/email with InputText (debounced)
-    - [ ] Create button opens Dialog
-- [ ] Client show page with TabView
-    - Overview tab: client details
-    - Projects tab: nested DataTable
-    - Documents tab: file upload with FileUpload component
-- [ ] Create/Edit client in Dialog with form validation
+- [X] Create client page (`Clients/Create.vue`)
+- [X] Edit client page (`Clients/Edit.vue`)
+- [ ] Client show page with TabView (Overview, Projects, Documents tabs)
 - [ ] Delete confirmation with ConfirmDialog
 
 **Components**:
-- `Pages/Clients/Index.vue`
-- `Pages/Clients/Show.vue`
-- `Components/Clients/ClientForm.vue`
-- PrimeVue: DataTable, Dialog, TabView, FileUpload, ConfirmDialog
+- `pages/Clients/Index.vue`
+- `pages/Clients/Create.vue`
+- `pages/Clients/Edit.vue`
 
 ### AC 6.4: Projects Pages
-- [ ] Projects index page with PrimeVue DataTable
-    - Columns: Name, Client, Assigned To, Status, Deadline, Actions
-    - Status filter with MultiSelect
-    - Project status badges with Tag component
-    - Users see only their assigned projects
-- [ ] Project show page with TabView
-    - Overview: project details with client info
-    - Tasks: nested DataTable with inline status updates
-    - Files: media library with FileUpload
-- [ ] Create/Edit project form in Dialog
-    - Client Dropdown (searchable)
-    - User assignment Dropdown
-    - Date pickers with Calendar component
+- [X] Projects index page (`Projects/Index.vue`) with DataTable
+    - [ ] Columns: Name, Client, Assigned To, Status, Deadline, Actions
+    - [ ] Status filter with MultiSelect
+    - [ ] Project status badges with Tag component
+    - [X] Users see only their assigned projects
+- [X] Create project page (`Projects/Create.vue`)
+- [X] Edit project page (`Projects/Edit.vue`)
+    - [X] Files tab: media upload with file table (upload + list of uploaded files)
+- [ ] Project show page with TabView (Overview, Tasks, Files tabs)
 - [ ] Status update workflow with ConfirmDialog
 
 **Components**:
-- `Pages/Projects/Index.vue`
-- `Pages/Projects/Show.vue`
-- `Components/Projects/ProjectForm.vue`
-- PrimeVue: DataTable, Tag, Calendar, Dropdown, AutoComplete
+- `pages/Projects/Index.vue`
+- `pages/Projects/Create.vue`
+- `pages/Projects/Edit.vue` (includes media upload table)
 
 ### AC 6.5: Tasks Pages
 - [ ] Tasks index page with DataTable
-    - Columns: Title, Project, Assigned To, Priority, Status, Due Date, Actions
-    - Filter by project with Dropdown
-    - Priority badges with Tag (color-coded)
-    - Drag-and-drop status updates (bonus)
+    - [ ] Columns: Title, Project, Assigned To, Priority, Status, Due Date, Actions
+    - [ ] Filter by project with Dropdown
+    - [ ] Priority badges with Tag (color-coded)
+    - [ ] Drag-and-drop status updates (bonus)
 - [ ] Task show page with details and comments (simplified)
 - [ ] Create/Edit task form in Dialog
-    - Project Dropdown
-    - Priority SelectButton
-    - Status Dropdown
-    - Due date Calendar
+    - [ ] Project Dropdown
+    - [ ] Priority SelectButton
+    - [ ] Status Dropdown
+    - [ ] Due date Calendar
 - [ ] Quick status update from DataTable with Dropdown
 
 **Components**:
@@ -408,11 +402,11 @@ test('projects have assigned users')
 
 ### AC 6.6: Users Management (Admin Only)
 - [ ] Users index page with DataTable
-    - Columns: Name, Email, Role, Verified, Actions
-    - Role filter with MultiSelect
+    - [ ] Columns: Name, Email, Role, Verified, Actions
+    - [ ] Role filter with MultiSelect
 - [ ] Create/Edit user form in Dialog
-    - Role assignment with Dropdown
-    - Email verification checkbox
+    - [ ] Role assignment with Dropdown
+    - [ ] Email verification checkbox
 - [ ] Role management with Chips component
 
 **Components**:
@@ -453,25 +447,27 @@ test('user receives email when assigned to task')
 ## 8. Testing Requirements
 
 ### AC 8.1: Feature Tests Coverage
-- [ ] All API endpoints have feature tests
-- [ ] Authentication flow tested
-- [ ] Authorization/policy tests
-- [ ] CRUD operations tested for all resources
-- [ ] File upload tests with fake storage
+- [X] Client CRUD endpoints have feature tests (`ClientControllerTest` - 40+ tests)
+- [X] Project CRUD endpoints have feature tests (`ProjectControllerTest` - 20+ tests)
+- [X] Authentication flow tested
+- [X] Authorization/policy tests
+- [X] CRUD operations tested for all resources
+- [X] File upload tests (`UploadControllerTest`)
+- [ ] Task CRUD feature tests
 - [ ] Minimum 80% code coverage
 
 ### AC 8.2: Unit Tests
-- [ ] Model accessor tests
-- [ ] Model scope tests
-- [ ] Model relationship tests
+- [X] Model accessor tests (`UserTest`, `ClientTest`, `ProjectTest`)
+- [X] Model scope tests
+- [X] Model relationship tests
 - [ ] Policy logic tests
 - [ ] Validation rule tests (custom rules if any)
 
 ### AC 8.3: Test Organization
-- [ ] Tests use database transactions or RefreshDatabase
-- [ ] Tests use factories for data generation
-- [ ] Tests named with `test_` prefix or `test()` helper
-- [ ] Tests organized in Feature/ and Unit/ directories
+- [X] Tests use `RefreshDatabase`
+- [X] Tests use factories for data generation
+- [X] Tests named with `test()` helper
+- [X] Tests organized in `Feature/` and `Unit/` directories
 
 ---
 
@@ -484,7 +480,8 @@ test('user receives email when assigned to task')
 - [ ] Error pages use shared layout
 
 ### AC 9.2: Spatie Media Library
-- [ ] Media library configured for clients, projects, tasks
+- [X] Custom polymorphic `Media` model (mediable) for projects
+- [ ] Spatie Media Library package (using custom implementation instead)
 - [ ] Media collections: 'documents', 'images'
 - [ ] File validation (max size, allowed types)
 - [ ] Media displayed in frontend with PrimeVue Image component
@@ -541,19 +538,20 @@ php artisan serve
 ### Database Advanced
 - [x] Database Seeders and Factories
 - [x] Eloquent Query Scopes
-- [x] Polymorphic relationships (Spatie Media Library)
-- [x] Eloquent Accessors and Mutators (m/d/Y format)
+- [x] Polymorphic relationships (custom Media model)
+- [x] Eloquent Accessors and Mutators (m/d/Y format via PrettyDateCast)
 - [x] Soft Deletes
 
 ### Auth Advanced
 - [x] Authorization: Roles/Permissions, Gates, Policies (Spatie Permissions)
-- [x] Authentication: Email Verification
+- [x] Authentication: Email Verification (via Fortify)
+- [x] Two-Factor Authentication (via Fortify)
 
 ### API Basics
-- [x] API Routes and Controllers
-- [x] API Eloquent Resources
-- [x] API Auth with Sanctum
-- [x] Override API Error Handling and Status Codes
+- [ ] API Routes and Controllers
+- [ ] API Eloquent Resources
+- [ ] API Auth with Sanctum
+- [ ] Override API Error Handling and Status Codes
 
 ### Debugging Errors
 - [x] Try-Catch and Laravel Exceptions
@@ -570,7 +568,9 @@ php artisan serve
 
 **Notes**:
 - This AC list follows TDD principles - write tests first, then implement features
-- Sanctum cookie-based authentication is recommended for Inertia SPAs
+- The app uses **Inertia.js web routes** (not REST API routes) for client and project CRUD
+- Authentication is handled via **Laravel Fortify** (session-based, with 2FA support)
+- Media uploads for projects use a custom polymorphic `Media` model (not Spatie Media Library)
 - Focus on backend testing (Feature + Unit), frontend testing is bonus
 - Use factories extensively in tests for clean, maintainable test code
 - PrimeVue components enhance UX but core functionality should work without JavaScript

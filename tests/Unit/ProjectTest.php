@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Media;
 use App\Models\Project;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -24,7 +25,7 @@ class ProjectTest extends TestCase
     public function test_project_has_many_medias()
     {
         $project = Project::factory()
-            ->has(Media::factory()->count(3), 'medias')
+            ->hasMedias(3)
             ->create();
 
         $this->assertCount(3, $project->medias);
@@ -38,5 +39,17 @@ class ProjectTest extends TestCase
 
         $this->assertDatabaseCount('projects', 4);
         $this->assertCount(3, Project::query()->get());
+    }
+
+    public function test_data_accessors_return_formatted_dates()
+    {
+        $deadlineInput = '2026-02-22';
+        Project::factory()->create([
+            'deadline' => $deadlineInput
+        ]);
+
+        $project = Project::query()->first();
+
+        $this->assertEquals(Carbon::parse($deadlineInput)->format('m/d/Y'), $project->deadline);
     }
 }
