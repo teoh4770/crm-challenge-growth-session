@@ -274,6 +274,56 @@ const currentDate = computed(() => {
                     <Button type="submit">Edit Task</Button>
                 </Form>
             </div>
+
+            <Card>
+                <template #content>
+                    <div class="grid gap-4">
+                        <Form class="grid gap-4" :action="UploadController(task.data.id)" #default="{ errors }">
+                            <div class="flex flex-col gap-1">
+                                <label
+                                    for="file"
+                                    class="block text-sm/6 font-medium text-primary"
+                                >
+                                    File
+                                </label>
+                                <input
+                                    id="file"
+                                    type="file"
+                                    name="file"
+                                    class="border p-1"
+                                    :class="{
+                                    'border-red-500': errors['file'],
+                                }"
+                                />
+                                <p class="text-xs text-red-500 italic">
+                                    {{ errors['file'] }}
+                                </p>
+                            </div>
+
+                            <Button type="submit" class="w-fit">Upload</Button>
+                        </Form>
+
+                        <div class="card">
+                            <DataTable :value="taskMedias.data" tableStyle="min-width: 50rem">
+                                <Column field="fileName" header="File Name"></Column>
+                                <Column field="size" header="Size">
+                                    <template #body="slotProps">
+                                        <span class="text-slate-300">{{ slotProps.data.size }} KB</span>
+                                    </template>
+                                </Column>
+                                <Column header="Actions">
+                                    <template #body>
+                                        <div class="space-x-2">
+                                            <Button as="a" label="Download" size="small" />
+                                            <Button as="a" label="Delete" severity="danger" size="small" />
+                                        </div>
+                                    </template>
+                                </Column>
+                            </DataTable>
+                        </div>
+                    </div>
+                </template>
+            </Card>
         </div>
     </AppLayout>
 </template>

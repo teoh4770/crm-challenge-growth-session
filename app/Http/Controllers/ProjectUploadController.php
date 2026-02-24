@@ -6,7 +6,7 @@ use App\Http\Requests\MediaRequest;
 use App\Models\Project;
 use App\Services\UploadService;
 
-class UploadController extends Controller
+class ProjectUploadController extends Controller
 {
     /**
      * Handle the incoming request.

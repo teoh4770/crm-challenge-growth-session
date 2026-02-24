@@ -3,7 +3,8 @@
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UploadController;
+use App\Http\Controllers\ProjectUploadController;
+use App\Http\Controllers\TaskUploadController;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,7 @@ Route::resource('projects', ProjectController::class)
 Route::resource('tasks', TaskController::class)
     ->middleware(['auth', 'verified']);
 
-Route::post('upload/{project?}', UploadController::class)->name('upload')->middleware(['auth', 'verified']);
+Route::post('upload/projects/{project}', ProjectUploadController::class)->name('upload.project')->middleware(['auth', 'verified']);
+Route::post('upload/tasks/{task}', TaskUploadController::class)->name('upload.task')->middleware(['auth', 'verified']);
 
 require __DIR__.'/settings.php';
