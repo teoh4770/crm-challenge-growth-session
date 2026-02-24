@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
+import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import type { BreadcrumbItem, Client, ProjectStatus, User } from '@/types';
+import type { BreadcrumbItem, User } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import UploadController from '@/actions/App/Http/Controllers/UploadController';
@@ -13,8 +13,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
     {
-        title: 'Projects',
-        href: ProjectController.index().url,
+        title: 'Tasks',
+        href: TaskController.index().url,
     },
     {
         title: 'Edit',
@@ -25,38 +25,44 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface Project {
     id: number;
     title: string;
-    description: string;
-    client: Client;
-    user: User;
-    deadline: string;
-    status: string;
 }
 
-interface Media {
+interface Task {
     id: number;
-    fileName: string;
-    size: number;
+    title: string;
+    description: string;
+    status: string;
+    priority: string;
+    due_date: string;
+    project: Project;
+    user: User;
 }
 
-interface ProjectEditProps {
-    project: {
-        data: Project;
+interface TaskStatus {
+    value: string;
+    label: string;
+}
+
+interface TaskPriority {
+    value: string;
+    label: string;
+}
+
+interface ProjectCreateProps {
+    task: {
+        data: Task;
     };
     users: {
         data: User[];
     };
-    clients: {
-        data: Client[];
+    projects: {
+        data: Project[];
     };
-    projectStatuses: ProjectStatus[];
-    projectMedias: {
-        data: Media[]
-    };
+    taskStatuses: TaskStatus[];
+    taskPriorities: TaskPriority[];
 }
 
-const props = defineProps<ProjectEditProps>();
-
-console.log(props);
+defineProps<ProjectCreateProps>();
 
 const currentDate = computed(() => {
     return new Date().toISOString().split('T')[0];
@@ -73,7 +79,7 @@ const currentDate = computed(() => {
             <div class="card">
                 <Form
                     class="grid gap-4"
-                    :action="ProjectController.update(project.data.id)"
+                    :action="TaskController.store()"
                     #default="{ errors }"
                 >
                     <div class="flex flex-col gap-1">
@@ -87,11 +93,11 @@ const currentDate = computed(() => {
                             id="title"
                             type="text"
                             name="title"
-                            :value="project.data.title"
                             class="border p-1"
                             :class="{
                                 'border-red-500': errors['title'],
                             }"
+                            :value="task.data.title"
                         />
                         <p class="text-xs text-red-500 italic">
                             {{ errors['title'] }}
@@ -109,45 +115,14 @@ const currentDate = computed(() => {
                             id="description"
                             type="text"
                             name="description"
-                            :value="project.data.description"
                             class="border p-1"
                             :class="{
                                 'border-red-500': errors['description'],
                             }"
+                            :value="task.data.description"
                         />
                         <p class="text-xs text-red-500 italic">
                             {{ errors['description'] }}
-                        </p>
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <label
-                            for="client_id"
-                            class="block text-sm/6 font-medium text-primary"
-                            >Client</label
-                        >
-                        <select
-                            name="client_id"
-                            id="client_id"
-                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
-                            :class="{
-                                'border-red-500': errors['client_id'],
-                            }"
-                        >
-                            <option>Choose a client</option>
-                            <option
-                                v-for="client in clients.data"
-                                :key="client.id"
-                                :value="client.id"
-                                :selected="
-                                    client.id === project.data.client?.id
-                                "
-                            >
-                                {{ client.name }}
-                            </option>
-                        </select>
-                        <p class="text-xs text-red-500 italic">
-                            {{ errors['client_id'] }}
                         </p>
                     </div>
 
@@ -171,7 +146,7 @@ const currentDate = computed(() => {
                                 v-for="user in users.data"
                                 :key="user.id"
                                 :value="user.id"
-                                :selected="user.id === project.data.user?.id"
+                                :selected="task.data.user.id === user.id"
                             >
                                 {{ user.name }}
                             </option>
@@ -183,24 +158,54 @@ const currentDate = computed(() => {
 
                     <div class="flex flex-col gap-1">
                         <label
-                            for="deadline"
+                            for="user_id"
                             class="block text-sm/6 font-medium text-primary"
                         >
-                            Deadline
+                            Project
+                        </label>
+                        <select
+                            name="project_id"
+                            id="project_id"
+                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+                            :class="{
+                                'border-red-500': errors['project_id'],
+                            }"
+                        >
+                            <option selected>Choose a project</option>
+                            <option
+                                v-for="project in projects.data"
+                                :key="project.id"
+                                :value="project.id"
+                                :selected="project.id === task.data.project.id"
+                            >
+                                {{ project.title }}
+                            </option>
+                        </select>
+                        <p class="text-xs text-red-500 italic">
+                            {{ errors['project_id'] }}
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label
+                            for="due_date"
+                            class="block text-sm/6 font-medium text-primary"
+                        >
+                            Due Date
                         </label>
                         <input
-                            id="deadline"
+                            id="due_date"
                             type="date"
-                            name="deadline"
-                            :value="project.data.deadline"
+                            name="due_date"
                             :min="currentDate"
                             class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
                             :class="{
-                                'border-red-500': errors['deadline'],
+                                'border-red-500': errors['due_date'],
                             }"
+                            :value="task.data.due_date"
                         />
                         <p class="text-xs text-red-500 italic">
-                            {{ errors['deadline'] }}
+                            {{ errors['due_date'] }}
                         </p>
                     </div>
 
@@ -220,14 +225,14 @@ const currentDate = computed(() => {
                         >
                             <option>Choose a status</option>
                             <option
-                                v-for="projectStatus in projectStatuses"
-                                :key="projectStatus.value"
-                                :value="projectStatus.value"
+                                v-for="taskStatus in taskStatuses"
+                                :key="taskStatus.value"
+                                :value="taskStatus.value"
                                 :selected="
-                                    projectStatus.value === project.data.status
+                                    taskStatus.value === task.data.status
                                 "
                             >
-                                {{ projectStatus.label }}
+                                {{ taskStatus.label }}
                             </option>
                         </select>
                         <p class="text-xs text-red-500 italic">
@@ -235,62 +240,40 @@ const currentDate = computed(() => {
                         </p>
                     </div>
 
-                    <div class="flex justify-end gap-2">
-                        <Button as="a" :href="ProjectController.index().url" class="w-fit" severity="secondary">Cancel</Button>
-                        <Button type="submit" class="w-fit">Update Project</Button>
+                    <div class="flex flex-col gap-1">
+                        <label
+                            for="priority"
+                            class="block text-sm/6 font-medium text-primary"
+                            >Priority</label
+                        >
+                        <select
+                            name="priority"
+                            id="priority"
+                            class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+                            :class="{
+                                'border-red-500': errors['priority'],
+                            }"
+                        >
+                            <option>Choose a priority</option>
+                            <option
+                                v-for="taskPriority in taskPriorities"
+                                :key="taskPriority.value"
+                                :value="taskPriority.value"
+                                :selected="
+                                    taskPriority.value === task.data.priority
+                                "
+                            >
+                                {{ taskPriority.label }}
+                            </option>
+                        </select>
+                        <p class="text-xs text-red-500 italic">
+                            {{ errors['priority'] }}
+                        </p>
                     </div>
+
+                    <Button type="submit">Edit Task</Button>
                 </Form>
             </div>
-
-            <Card>
-                <template #content>
-                    <div class="grid gap-4">
-                        <Form class="grid gap-4" :action="UploadController(project.data.id)" #default="{ errors }">
-                            <div class="flex flex-col gap-1">
-                                <label
-                                    for="file"
-                                    class="block text-sm/6 font-medium text-primary"
-                                >
-                                    File
-                                </label>
-                                <input
-                                    id="file"
-                                    type="file"
-                                    name="file"
-                                    class="border p-1"
-                                    :class="{
-                                    'border-red-500': errors['file'],
-                                }"
-                                />
-                                <p class="text-xs text-red-500 italic">
-                                    {{ errors['file'] }}
-                                </p>
-                            </div>
-
-                            <Button type="submit" class="w-fit">Upload</Button>
-                        </Form>
-
-                        <div class="card">
-                            <DataTable :value="projectMedias.data" tableStyle="min-width: 50rem">
-                                <Column field="fileName" header="File Name"></Column>
-                                <Column field="size" header="Size">
-                                    <template #body="slotProps">
-                                        <span class="text-slate-300">{{ slotProps.data.size }} KB</span>
-                                    </template>
-                                </Column>
-                                <Column header="Actions">
-                                    <template #body>
-                                        <div class="space-x-2">
-                                            <Button as="a" label="Download" size="small" />
-                                            <Button as="a" label="Delete" severity="danger" size="small" />
-                                        </div>
-                                    </template>
-                                </Column>
-                            </DataTable>
-                        </div>
-                    </div>
-                </template>
-            </Card>
         </div>
     </AppLayout>
 </template>

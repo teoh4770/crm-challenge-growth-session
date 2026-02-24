@@ -54,9 +54,7 @@ interface ProjectEditProps {
     };
 }
 
-const props = defineProps<ProjectEditProps>();
-
-console.log(props);
+defineProps<ProjectEditProps>();
 
 const currentDate = computed(() => {
     return new Date().toISOString().split('T')[0];

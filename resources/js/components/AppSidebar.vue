@@ -20,10 +20,12 @@ import {
     LayoutGrid,
     FolderKanbanIcon,
     UsersRound,
+    ListTodoIcon,
 } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import ClientController from '@/actions/App/Http/Controllers/ClientController';
+import TaskController from '@/actions/App/Http/Controllers/TaskController';
 
 const mainNavItems: NavItem[] = [
     {
@@ -40,6 +42,11 @@ const mainNavItems: NavItem[] = [
         title: 'Projects',
         href: ProjectController.index().url,
         icon: FolderKanbanIcon,
+    },
+    {
+        title: 'Tasks',
+        href: TaskController.index().url,
+        icon: ListTodoIcon,
     },
 ];
 

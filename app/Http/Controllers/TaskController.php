@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TaskPriorityEnum;
+use App\Enums\TaskStatusEnum;
 use App\Http\Requests\TaskRequest;
+use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
+use App\Http\Resources\UserResource;
+use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
 use Inertia\Inertia;
 
 class TaskController extends Controller
@@ -20,13 +26,35 @@ class TaskController extends Controller
         }
 
         return Inertia::render('Tasks/Index', [
-            'tasks' => TaskResource::collection($tasks),
+            'can' => [
+                'delete_task' => auth()->user()->can('manage tasks')
+            ],
+            'tasks' => TaskResource::collection($tasks)
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Tasks/Create');
+        $taskStatuses = collect(TaskStatusEnum::cases())->map(function ($enum) {
+            return [
+                'label' => $enum->name,
+                'value' => $enum->value,
+            ];
+        });
+
+        $taskPriorities = collect(TaskPriorityEnum::cases())->map(function ($enum) {
+            return [
+                'label' => $enum->name,
+                'value' => $enum->value,
+            ];
+        });
+
+        return Inertia::render('Tasks/Create', [
+            'users' => UserResource::collection(User::query()->get()),
+            'projects' => ProjectResource::collection(Project::query()->get()),
+            'taskStatuses' => $taskStatuses,
+            'taskPriorities' => $taskPriorities
+        ]);
     }
 
     public function store(TaskRequest $request)
@@ -45,8 +73,26 @@ class TaskController extends Controller
 
     public function edit(Task $task)
     {
+        $taskStatuses = collect(TaskStatusEnum::cases())->map(function ($enum) {
+            return [
+                'label' => $enum->name,
+                'value' => $enum->value,
+            ];
+        });
+
+        $taskPriorities = collect(TaskPriorityEnum::cases())->map(function ($enum) {
+            return [
+                'label' => $enum->name,
+                'value' => $enum->value,
+            ];
+        });
+
         return Inertia::render('Tasks/Edit', [
             'task' => new TaskResource($task),
+            'users' => UserResource::collection(User::query()->get()),
+            'projects' => ProjectResource::collection(Project::query()->get()),
+            'taskStatuses' => $taskStatuses,
+            'taskPriorities' => $taskPriorities
         ]);
     }
 

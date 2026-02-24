@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -30,11 +31,16 @@ class DatabaseSeeder extends Seeder
         $user1->assignRole('admin');
         $user2->assignRole('user');
 
-        Project::factory()->count(10)->create([
+        $user1Projects = Project::factory()->count(10)->create([
             'user_id' => $user1->id,
         ]);
         Project::factory()->count(5)->create([
             'user_id' => $user2->id,
+        ]);
+
+        Task::factory()->count(10)->create([
+            'user_id' => $user1->id,
+            'project_id' => $user1Projects->first()->id
         ]);
     }
 }

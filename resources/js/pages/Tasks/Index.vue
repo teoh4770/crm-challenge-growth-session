@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { useConfirm } from 'primevue';
+import TaskController from '@/actions/App/Http/Controllers/TaskController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -12,46 +12,46 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
     {
-        title: 'Projects',
+        title: 'Tasks',
         href: '#',
     },
 ];
 
-interface ProjectIndexProps {
+interface TaskIndexProps {
     can: {
-      delete_project: boolean
-    },
-    projects: {
+        delete_task: boolean;
+    };
+    tasks: {
         data: any[];
     };
 }
 
 const confirm = useConfirm();
 
-defineProps<ProjectIndexProps>();
+defineProps<TaskIndexProps>();
 
-function deleteProject(id: number) {
+function deleteTask(taskId: number) {
     confirm.require({
-        message: 'Are you sure you want to delete this project?',
+        message: 'Are you sure you want to delete this task?',
         header: 'Confirmation',
         icon: 'pi pi-exclamation-triangle',
         rejectProps: {
             label: 'Cancel',
             severity: 'secondary',
-            outlined: true
+            outlined: true,
         },
         acceptProps: {
             label: 'Delete',
-            severity: 'danger'
+            severity: 'danger',
         },
         accept: () => {
-            const projectDestroyRoute = ProjectController.destroy(id);
+            const taskDestroyRoute = TaskController.destroy(taskId);
 
-            router.visit(projectDestroyRoute.url, {
-                method: projectDestroyRoute.method,
+            router.visit(taskDestroyRoute.url, {
+                method: taskDestroyRoute.method,
             });
-        }
-    })
+        },
+    });
 }
 </script>
 
@@ -65,14 +65,14 @@ function deleteProject(id: number) {
             <div class="card grid gap-4">
                 <Button
                     as="a"
-                    :href="ProjectController.create().url"
+                    :href="TaskController.create().url"
                     class="w-fit"
-                    label="Add Project"
+                    label="Add Task"
                     icon="pi pi-plus"
                 />
 
                 <DataTable
-                    :value="projects.data"
+                    :value="tasks.data"
                     :dt="{
                         headerCell: {
                             background: '{surface.800}',
@@ -87,16 +87,15 @@ function deleteProject(id: number) {
                         :sortable="true"
                     />
                     <Column
-                        field="client.name"
-                        header="Client"
+                        field="project.title"
+                        header="Project"
                         :sortable="true"
                     />
-                    <Column field="title" header="Project" :sortable="true" />
                     <Column field="user.name" header="User" :sortable="true" />
                     <Column field="status" header="Status" :sortable="true" />
                     <Column
-                        field="deadline"
-                        header="Deadline"
+                        field="due_date"
+                        header="Due Date"
                         :sortable="true"
                     />
                     <Column header="Actions">
@@ -105,21 +104,20 @@ function deleteProject(id: number) {
                                 <Button
                                     as="a"
                                     :href="
-                                        ProjectController.edit(
-                                            slotProps.data.id,
-                                        ).url
+                                        TaskController.edit(slotProps.data.id)
+                                            .url
                                     "
                                     label="Edit"
                                     size="small"
                                     raised
                                 />
                                 <Button
-                                    v-if="can.delete_project"
+                                    v-if="can.delete_task"
                                     label="Delete"
                                     size="small"
                                     severity="secondary"
                                     raised
-                                    @click="deleteProject(slotProps.data.id)"
+                                    @click="deleteTask(slotProps.data.id)"
                                 />
                             </div>
                         </template>
