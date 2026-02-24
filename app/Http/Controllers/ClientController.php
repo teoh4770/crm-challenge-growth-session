@@ -54,6 +54,10 @@ class ClientController extends Controller
 
     public function destroy(Client $client)
     {
+        if (auth()->user()->cannot('manage clients')) {
+            abort(403);
+        }
+
         $client->delete();
 
         return redirect()->route('clients.index')

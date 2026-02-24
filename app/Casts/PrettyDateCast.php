@@ -10,7 +10,7 @@ class PrettyDateCast implements CastsAttributes
 {
     public function get(Model $model, string $key, $value, array $attributes)
     {
-        return Carbon::parse($value)->format('Y-m-d');
+        return Carbon::parse($value)->format('m/d/Y');
     }
 
     public function set(Model $model, string $key, $value, array $attributes)

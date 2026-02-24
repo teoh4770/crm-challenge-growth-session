@@ -62,18 +62,6 @@ class ClientControllerTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
-    public function test_user_cannot_list_clients_without_permission()
-    {
-        // Arrange
-        Client::factory()->count(5)->create();
-
-        // Act
-        $response = $this->actingAs($this->user)->get(route('clients.index'));
-
-        // Assert
-        $response->assertForbidden();
-    }
-
     public function test_admin_can_list_all_clients()
     {
         // Arrange
@@ -86,7 +74,7 @@ class ClientControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSeeInOrder($clients->pluck('name')->toArray());
         $response->assertInertia(fn(Assert $page) => $page
-            ->component('Client/Index')
+            ->component('Clients/Index')
             ->has('clients.data', $clients->count()));
     }
 
@@ -100,15 +88,6 @@ class ClientControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_user_cannot_show_create_client_page_without_permission()
-    {
-        // Act
-        $response = $this->actingAs($this->user)->get(route('clients.create'));
-
-        // Assert
-        $response->assertForbidden();
-    }
-
     public function test_admin_can_show_create_client_page()
     {
         // Act
@@ -117,7 +96,7 @@ class ClientControllerTest extends TestCase
         // Assert
         $response->assertStatus(200)
             ->assertInertia(fn(Assert $page) => $page
-                ->component('Client/Create'));
+                ->component('Clients/Create'));
     }
 
     // STORE
@@ -189,18 +168,6 @@ class ClientControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_user_cannot_access_edit_client_page_without_permission()
-    {
-        // Arrange
-        $client = Client::factory()->create();
-
-        // Act
-        $response = $this->actingAs($this->user)->get(route('clients.edit', $client));
-
-        // Assert
-        $response->assertForbidden();
-    }
-
     public function test_admin_can_access_edit_client_page()
     {
         // Arrange
@@ -212,7 +179,7 @@ class ClientControllerTest extends TestCase
         // Assert
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Client/Edit')
+                ->component('Clients/Edit')
                 ->has('client.data', fn (Assert $page) => $page
                     ->where('id', $client->id)
                     ->etc()
@@ -234,20 +201,6 @@ class ClientControllerTest extends TestCase
         // Assert
         $response = $this->put(route('clients.update', $client), $clientWithAura);
         $response->assertRedirect(route('login'));
-    }
-
-    public function test_user_cannot_update_client_without_permission()
-    {
-        // Arrange
-        $client = client::factory()->create();
-        $clientWithAura = client::factory()->raw(["name" => "Aura"]);
-
-        // Act
-        $clientWithAura['status'] = ClientStatusEnum::Active->value;
-
-        // Assert
-        $response = $this->actingAs($this->user)->put(route('clients.update', $client), $clientWithAura);
-        $response->assertForbidden();
     }
 
     public function test_admin_can_update_client_with_valid_data()

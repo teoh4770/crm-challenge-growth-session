@@ -26,7 +26,7 @@ Route::get('dashboard', function() {
         'clientAmount' => $clientAmount,
         'projectAmount' => $projectAmount,
     ]);
-})->name('dashboard');
+})->name('dashboard')->middleware(['auth', 'verified']);
 
 Route::resource('clients', ClientController::class)
     ->except(['show'])

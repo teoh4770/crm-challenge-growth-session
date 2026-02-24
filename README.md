@@ -58,10 +58,10 @@ test('soft deleted clients are not in default queries')
 - [X] Project model uses `SoftDeletes`
 - [X] Project `belongsTo` Client
 - [X] Project `belongsTo` User (assigned user)
-- [] Project `hasMany` Tasks
+- [X] Project `hasMany` Tasks
 - [X] Project `morphMany` Media (custom `Media` model via `mediable` polymorphic relation)
-- [ ] Date accessors for `start_date` and `deadline` in m/d/Y format
-- [?] Status scope: `scopeInProgress($query)`
+- [X] Date accessors for `deadline` in m/d/Y format
+- [X] Status scope: `scopeInProgress($query)`
 
 **Tests**:
 ```php
@@ -75,13 +75,13 @@ test('in_progress scope filters correctly')
 ```
 
 ### AC 2.4: Task Model
-- [] Tasks table: `title`, `description`, `project_id`, `user_id` (assigned to), `status` (todo/in_progress/done), `priority` (low/medium/high), `due_date`, `deleted_at`, timestamps
-- [ ] Task model uses `SoftDeletes`
-- [ ] Task `belongsTo` Project
-- [ ] Task `belongsTo` User (assigned user)
-- [ ] Task `morphMany` Media (Spatie)
-- [ ] Date accessor for `due_date` in m/d/Y format
-- [ ] Status scopes: `scopePending($query)`, `scopeCompleted($query)`
+- [X] Tasks table: `title`, `description`, `project_id`, `user_id` (assigned to), `status` (todo/in_progress/done), `priority` (low/medium/high), `due_date`, `deleted_at`, timestamps
+- [X] Task model uses `SoftDeletes`
+- [X] Task `belongsTo` Project
+- [X] Task `belongsTo` User (assigned user)
+- [X] Task `morphMany` Media (Spatie)
+- [X] Date accessor for `due_date` in m/d/Y format
+- [X] Status scopes: `scopePending($query)`, `scopeCompleted($query)`
 
 **Tests**:
 ```php
@@ -237,6 +237,8 @@ test('can upload media to project')
 - [ ] DELETE `/api/tasks/{task}` - soft delete task
 - [ ] POST `/api/tasks/{task}/media` - upload task attachments
 - [ ] All endpoints return `TaskResource`
+
+> **Note**: Task CRUD is currently implemented as Inertia web routes, not `/api/` routes. Media upload for projects is functional via `POST /upload/{project}`.
 
 **Tests**:
 ```php

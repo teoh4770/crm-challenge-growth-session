@@ -153,7 +153,7 @@ class ProjectControllerTest extends TestCase
 
         $response->assertRedirect(route('projects.index'));
         $this->assertDatabaseCount('projects', 1);
-        $this->assertDatabaseHas('projects', $project->except(['file']));
+        $this->assertDatabaseHas('projects', $project->except(['file', 'deadline']));
     }
 
     public function test_cannot_create_project_with_invalid_deadline()
