@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\TaskPriorityEnum;
 use App\Enums\TaskStatusEnum;
 use App\Http\Requests\TaskRequest;
+use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
 use App\Http\Resources\UserResource;
@@ -92,7 +93,8 @@ class TaskController extends Controller
             'users' => UserResource::collection(User::query()->get()),
             'projects' => ProjectResource::collection(Project::query()->get()),
             'taskStatuses' => $taskStatuses,
-            'taskPriorities' => $taskPriorities
+            'taskPriorities' => $taskPriorities,
+            'taskMedias' => MediaResource::collection($task->medias),
         ]);
     }
 
