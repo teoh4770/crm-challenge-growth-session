@@ -134,7 +134,7 @@ class ProjectControllerTest extends TestCase
     public function test_admin_can_create_project_with_valid_data()
     {
         $project = Project::factory()->make();
-        $project->deadline = '2026-02-24 03:45:20';
+        $project->deadline = today()->addDay();
 
         $response = $this->actingAs($this->admin)->post(route('projects.store'), $project->toArray());
 
@@ -147,7 +147,7 @@ class ProjectControllerTest extends TestCase
     public function test_user_can_create_project_with_valid_data()
     {
         $project = Project::factory()->make();
-        $project['deadline'] = '2026-02-24 03:45:20';
+        $project['deadline'] = today()->addDay();
 
         $response = $this->actingAs($this->user)->post(route('projects.store'), $project->toArray());
 
