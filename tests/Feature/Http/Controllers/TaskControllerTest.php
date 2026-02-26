@@ -277,7 +277,7 @@ class TaskControllerTest extends TestCase
 
         Storage::assertExists($path);
 
-        $this->actingAs($this->admin)->delete(route('tasks.upload.destroy', [ 'task' => $task, 'media' => $media ]));
+        $this->actingAs($this->admin)->delete(route('tasks.upload.destroy', $media));
 
         Storage::assertMissing($path);
         $this->assertCount(0, $task->fresh()->medias);

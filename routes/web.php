@@ -5,7 +5,6 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectUploadController;
 use App\Http\Controllers\TaskUploadController;
-use App\Http\Controllers\TaskUploadDeleteController;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
@@ -39,9 +38,12 @@ Route::resource('projects', ProjectController::class)
 Route::resource('tasks', TaskController::class)
     ->middleware(['auth', 'verified']);
 
-Route::post('upload/projects/{project}', ProjectUploadController::class)->name('upload.project')->middleware(['auth', 'verified']);
-Route::post('upload/tasks/{task}', TaskUploadController::class)->name('upload.task')->middleware(['auth', 'verified']);
+Route::prefix('upload')->middleware(['auth', 'verified'])->group(function () {
+    Route::post('projects/{project}', [ProjectUploadController::class, 'store'])->name('projects.upload.store');
+    Route::delete('projects/{media}', [ProjectUploadController::class, 'destroy'])->name('projects.upload.destroy');
 
-Route::delete('upload/tasks/{task}/{media}', TaskUploadDeleteController::class)->name('tasks.upload.destroy')->middleware(['auth', 'verified']);
+    Route::post('tasks/{task}', [TaskUploadController::class, 'store'])->name('tasks.upload.store');
+    Route::delete('tasks/{media}', [TaskUploadController::class, 'destroy'])->name('tasks.upload.destroy');
+});
 
 require __DIR__.'/settings.php';

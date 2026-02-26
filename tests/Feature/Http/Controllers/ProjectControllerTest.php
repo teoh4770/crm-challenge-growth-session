@@ -258,4 +258,32 @@ class ProjectControllerTest extends TestCase
         $response->assertRedirect(route('projects.index'));
         $this->assertDatabaseMissing('projects', $otherPeopleProject->toArray());
     }
+
+    public function test_admin_can_delete_uploaded_media_attached_to_project()
+    {
+        Storage::fake();
+
+        $project = Project::factory()->create();
+        $file = UploadedFile::fake()->image('project.jpg');
+
+        $path = $file->store('projects');
+
+        $media = $project->medias()->create([
+            'name' => basename($path),
+            'file_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'path' => $path,
+            'disk' => 'local',
+            'file_hash' => hash('sha256', $file->getContent()),
+            'collection' => 'projects',
+            'size' => $file->getSize(),
+        ]);
+
+        Storage::assertExists($path);
+
+        $this->actingAs($this->admin)->delete(route('projects.upload.destroy', $media));
+
+        Storage::assertMissing($path);
+        $this->assertModelMissing($media);
+    }
 }

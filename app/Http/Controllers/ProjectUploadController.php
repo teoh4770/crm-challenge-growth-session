@@ -3,27 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MediaRequest;
+use App\Models\Media;
 use App\Models\Project;
 use App\Services\UploadService;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectUploadController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(MediaRequest $request, Project $project)
+    public function store(MediaRequest $request, Project $project)
     {
-        $uploadService = new UploadService();
-
-        // If project is the second argument, use project method from upload service
-        $file = $uploadService->project(
+        $file = (new UploadService())->project(
             file: $request->file('file')
         );
 
-        // Create media related to the project
         $project->medias()->create(
             attributes: $file->toArray()
         );
+
+        return redirect()->back();
+    }
+
+    public function destroy(Media $media)
+    {
+        Storage::delete($media->path);
+
+        $media->delete();
 
         return redirect()->back();
     }

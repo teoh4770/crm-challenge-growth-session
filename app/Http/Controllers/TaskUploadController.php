@@ -3,26 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MediaRequest;
-use App\Models\Project;
+use App\Models\Media;
 use App\Models\Task;
 use App\Services\UploadService;
+use Illuminate\Support\Facades\Storage;
 
 class TaskUploadController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(MediaRequest $request, Task $task)
+    public function store(MediaRequest $request, Task $task)
     {
-        $uploadService = new UploadService();
-
-        $file = $uploadService->task(
+        $file = (new UploadService())->task(
             file: $request->file('file')
         );
 
         $task->medias()->create(
             attributes: $file->toArray()
         );
+
+        return redirect()->back();
+    }
+
+    public function destroy(Media $media)
+    {
+        Storage::delete($media->path);
+
+        $media->delete();
 
         return redirect()->back();
     }
