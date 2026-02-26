@@ -5,6 +5,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectUploadController;
 use App\Http\Controllers\TaskUploadController;
+use App\Http\Controllers\TaskUploadDeleteController;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
@@ -40,5 +41,7 @@ Route::resource('tasks', TaskController::class)
 
 Route::post('upload/projects/{project}', ProjectUploadController::class)->name('upload.project')->middleware(['auth', 'verified']);
 Route::post('upload/tasks/{task}', TaskUploadController::class)->name('upload.task')->middleware(['auth', 'verified']);
+
+Route::delete('upload/tasks/{task}/{media}', TaskUploadDeleteController::class)->name('tasks.upload.destroy')->middleware(['auth', 'verified']);
 
 require __DIR__.'/settings.php';

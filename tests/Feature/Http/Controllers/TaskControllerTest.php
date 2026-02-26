@@ -2,10 +2,13 @@
 
 namespace Feature\Http\Controllers;
 
+use App\Models\Media;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -250,5 +253,33 @@ class TaskControllerTest extends TestCase
 
         $response->assertRedirect(route('tasks.index'));
         $this->assertSoftDeleted('tasks', ['id' => $task->id]);
+    }
+
+    public function test_admin_can_delete_uploaded_media_attached_to_task()
+    {
+        Storage::fake();
+
+        $uploadedFile = UploadedFile::fake()->image('task.jpg');
+
+        $task = Task::factory()->create();
+        $path = $uploadedFile->store('tasks');
+
+        $media = $task->medias()->create([
+            'name' => basename($path),
+            'file_name' => $uploadedFile->getClientOriginalName(),
+            'mime_type' => $uploadedFile->getClientMimeType(),
+            'path' => $path,
+            'disk' => 'local',
+            'file_hash' => hash('sha256', $uploadedFile->getContent()),
+            'collection' => 'tasks',
+            'size' => $uploadedFile->getSize(),
+        ]);
+
+        Storage::assertExists($path);
+
+        $this->actingAs($this->admin)->delete(route('tasks.upload.destroy', [ 'task' => $task, 'media' => $media ]));
+
+        Storage::assertMissing($path);
+        $this->assertCount(0, $task->fresh()->medias);
     }
 }
