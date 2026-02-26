@@ -5,7 +5,7 @@ import { dashboard } from '@/routes';
 import type { BreadcrumbItem, Client, ProjectStatus, User } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import UploadController from '@/actions/App/Http/Controllers/UploadController';
+import ProjectUploadController from '@/actions/App/Http/Controllers/ProjectUploadController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -245,7 +245,7 @@ const currentDate = computed(() => {
             <Card>
                 <template #content>
                     <div class="grid gap-4">
-                        <Form class="grid gap-4" :action="UploadController(project.data.id)" #default="{ errors }">
+                        <Form class="grid gap-4" :action="ProjectUploadController(project.data.id)" #default="{ errors }">
                             <div class="flex flex-col gap-1">
                                 <label
                                     for="file"

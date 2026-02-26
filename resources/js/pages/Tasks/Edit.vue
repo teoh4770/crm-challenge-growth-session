@@ -5,7 +5,7 @@ import { dashboard } from '@/routes';
 import type { BreadcrumbItem, User } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import UploadController from '@/actions/App/Http/Controllers/UploadController';
+import TaskUploadController from '@/actions/App/Http/Controllers/TaskUploadController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -60,6 +60,9 @@ interface ProjectCreateProps {
     };
     taskStatuses: TaskStatus[];
     taskPriorities: TaskPriority[];
+    taskMedias: {
+        data: any[]
+    };
 }
 
 defineProps<ProjectCreateProps>();
@@ -278,7 +281,7 @@ const currentDate = computed(() => {
             <Card>
                 <template #content>
                     <div class="grid gap-4">
-                        <Form class="grid gap-4" :action="UploadController(task.data.id)" #default="{ errors }">
+                        <Form class="grid gap-4" :action="TaskUploadController(task.data.id)" #default="{ errors }">
                             <div class="flex flex-col gap-1">
                                 <label
                                     for="file"
