@@ -3,9 +3,12 @@ import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, User } from '@/types';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import TaskUploadController from '@/actions/App/Http/Controllers/TaskUploadController';
+import { useConfirm } from 'primevue';
+import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
+import ProjectUploadController from '@/actions/App/Http/Controllers/ProjectUploadController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -61,15 +64,41 @@ interface ProjectCreateProps {
     taskStatuses: TaskStatus[];
     taskPriorities: TaskPriority[];
     taskMedias: {
-        data: any[]
+        data: any[];
     };
 }
+
+const confirm = useConfirm();
 
 defineProps<ProjectCreateProps>();
 
 const currentDate = computed(() => {
     return new Date().toISOString().split('T')[0];
 });
+
+function deleteMedia(mediaId: number) {
+    confirm.require({
+        message: 'Are you sure you want to delete this file?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true,
+        },
+        acceptProps: {
+            label: 'Delete',
+            severity: 'danger',
+        },
+        accept: () => {
+            const taskUploadDestroyRoute = TaskUploadController.destroy(mediaId);
+
+            router.visit(taskUploadDestroyRoute.url, {
+                method: taskUploadDestroyRoute.method,
+            });
+        },
+    });
+}
 </script>
 
 <template>
@@ -281,7 +310,11 @@ const currentDate = computed(() => {
             <Card>
                 <template #content>
                     <div class="grid gap-4">
-                        <Form class="grid gap-4" :action="TaskUploadController(task.data.id)" #default="{ errors }">
+                        <Form
+                            class="grid gap-4"
+                            :action="TaskUploadController.store(task.data.id)"
+                            #default="{ errors }"
+                        >
                             <div class="flex flex-col gap-1">
                                 <label
                                     for="file"
@@ -295,8 +328,8 @@ const currentDate = computed(() => {
                                     name="file"
                                     class="border p-1"
                                     :class="{
-                                    'border-red-500': errors['file'],
-                                }"
+                                        'border-red-500': errors['file'],
+                                    }"
                                 />
                                 <p class="text-xs text-red-500 italic">
                                     {{ errors['file'] }}
@@ -307,18 +340,41 @@ const currentDate = computed(() => {
                         </Form>
 
                         <div class="card">
-                            <DataTable :value="taskMedias.data" tableStyle="min-width: 50rem">
-                                <Column field="fileName" header="File Name"></Column>
+                            <DataTable
+                                :value="taskMedias.data"
+                                tableStyle="min-width: 50rem"
+                            >
+                                <Column
+                                    field="fileName"
+                                    header="File Name"
+                                ></Column>
                                 <Column field="size" header="Size">
                                     <template #body="slotProps">
-                                        <span class="text-slate-300">{{ slotProps.data.size }} KB</span>
+                                        <span class="text-slate-300"
+                                            >{{ slotProps.data.size }} KB</span
+                                        >
                                     </template>
                                 </Column>
                                 <Column header="Actions">
-                                    <template #body>
+                                    <template #body="slotProps">
                                         <div class="space-x-2">
-                                            <Button as="a" label="Download" size="small" />
-                                            <Button as="a" label="Delete" severity="danger" size="small" />
+                                            <Button
+                                                as="a"
+                                                :href="TaskUploadController.download(slotProps.data.id).url"
+                                                label="Download"
+                                                size="small"
+
+                                            />
+                                            <Button
+                                                label="Delete"
+                                                severity="danger"
+                                                size="small"
+                                                @click="
+                                                    deleteMedia(
+                                                        slotProps.data.id,
+                                                    )
+                                                "
+                                            />
                                         </div>
                                     </template>
                                 </Column>
@@ -328,5 +384,7 @@ const currentDate = computed(() => {
                 </template>
             </Card>
         </div>
+
+        <ConfirmDialog></ConfirmDialog>
     </AppLayout>
 </template>

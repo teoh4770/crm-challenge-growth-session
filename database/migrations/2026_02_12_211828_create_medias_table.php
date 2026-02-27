@@ -25,7 +25,7 @@ return new class extends Migration {
             $table->string('path');
             $table->string('disk')->default('local');
             // 'file_hash': ensure we don't upload the same file more than once
-            $table->string('file_hash', 64)->unique();
+            $table->string('file_hash', 64);
 
             // 'collection': allow saving a file to a collection like 'blog posts'
             $table->string('collection')->nullable();

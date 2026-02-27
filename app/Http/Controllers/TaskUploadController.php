@@ -31,4 +31,9 @@ class TaskUploadController extends Controller
 
         return redirect()->back();
     }
+
+    public function download(Media $media)
+    {
+        return Storage::download($media->path);
+    }
 }

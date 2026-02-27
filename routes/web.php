@@ -46,4 +46,9 @@ Route::prefix('upload')->middleware(['auth', 'verified'])->group(function () {
     Route::delete('tasks/{media}', [TaskUploadController::class, 'destroy'])->name('tasks.upload.destroy');
 });
 
+Route::middleware(['auth', 'verified'])->group(function () {
+   Route::get('projects/{media}/download', [ProjectUploadController::class, 'download'])->name('projects.upload.download');
+   Route::get('tasks/{media}/download', [TaskUploadController::class, 'download'])->name('tasks.upload.download');
+});
+
 require __DIR__.'/settings.php';

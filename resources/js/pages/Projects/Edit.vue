@@ -3,9 +3,11 @@ import ProjectController from '@/actions/App/Http/Controllers/ProjectController'
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, Client, ProjectStatus, User } from '@/types';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import ProjectUploadController from '@/actions/App/Http/Controllers/ProjectUploadController';
+import { useConfirm } from 'primevue';
+import TaskUploadController from '@/actions/App/Http/Controllers/TaskUploadController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -50,17 +52,41 @@ interface ProjectEditProps {
     };
     projectStatuses: ProjectStatus[];
     projectMedias: {
-        data: Media[]
+        data: Media[];
     };
 }
 
-const props = defineProps<ProjectEditProps>();
+const confirm = useConfirm();
 
-console.log(props);
+const props = defineProps<ProjectEditProps>();
 
 const currentDate = computed(() => {
     return new Date().toISOString().split('T')[0];
 });
+
+function deleteMedia(mediaId: number) {
+    confirm.require({
+        message: 'Are you sure you want to delete this file?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true,
+        },
+        acceptProps: {
+            label: 'Delete',
+            severity: 'danger',
+        },
+        accept: () => {
+            const projectUploadDestroyRoute = ProjectUploadController.destroy(mediaId);
+
+            router.visit(projectUploadDestroyRoute.url, {
+                method: projectUploadDestroyRoute.method,
+            });
+        },
+    });
+}
 </script>
 
 <template>
@@ -236,8 +262,16 @@ const currentDate = computed(() => {
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <Button as="a" :href="ProjectController.index().url" class="w-fit" severity="secondary">Cancel</Button>
-                        <Button type="submit" class="w-fit">Update Project</Button>
+                        <Button
+                            as="a"
+                            :href="ProjectController.index().url"
+                            class="w-fit"
+                            severity="secondary"
+                            >Cancel</Button
+                        >
+                        <Button type="submit" class="w-fit"
+                            >Update Project</Button
+                        >
                     </div>
                 </Form>
             </div>
@@ -245,7 +279,13 @@ const currentDate = computed(() => {
             <Card>
                 <template #content>
                     <div class="grid gap-4">
-                        <Form class="grid gap-4" :action="ProjectUploadController(project.data.id)" #default="{ errors }">
+                        <Form
+                            class="grid gap-4"
+                            :action="
+                                ProjectUploadController.store(project.data.id)
+                            "
+                            #default="{ errors }"
+                        >
                             <div class="flex flex-col gap-1">
                                 <label
                                     for="file"
@@ -259,8 +299,8 @@ const currentDate = computed(() => {
                                     name="file"
                                     class="border p-1"
                                     :class="{
-                                    'border-red-500': errors['file'],
-                                }"
+                                        'border-red-500': errors['file'],
+                                    }"
                                 />
                                 <p class="text-xs text-red-500 italic">
                                     {{ errors['file'] }}
@@ -271,18 +311,40 @@ const currentDate = computed(() => {
                         </Form>
 
                         <div class="card">
-                            <DataTable :value="projectMedias.data" tableStyle="min-width: 50rem">
-                                <Column field="fileName" header="File Name"></Column>
+                            <DataTable
+                                :value="projectMedias.data"
+                                tableStyle="min-width: 50rem"
+                            >
+                                <Column
+                                    field="fileName"
+                                    header="File Name"
+                                ></Column>
                                 <Column field="size" header="Size">
                                     <template #body="slotProps">
-                                        <span class="text-slate-300">{{ slotProps.data.size }} KB</span>
+                                        <span class="text-slate-300"
+                                            >{{ slotProps.data.size }} KB</span
+                                        >
                                     </template>
                                 </Column>
                                 <Column header="Actions">
-                                    <template #body>
+                                    <template #body="slotProps">
                                         <div class="space-x-2">
-                                            <Button as="a" label="Download" size="small" />
-                                            <Button as="a" label="Delete" severity="danger" size="small" />
+                                            <Button
+                                                as="a"
+                                                :href="ProjectUploadController.download(slotProps.data.id).url"
+                                                label="Download"
+                                                size="small"
+                                            />
+                                            <Button
+                                                label="Delete"
+                                                severity="danger"
+                                                size="small"
+                                                @click="
+                                                    deleteMedia(
+                                                        slotProps.data.id,
+                                                    )
+                                                "
+                                            />
                                         </div>
                                     </template>
                                 </Column>
@@ -292,5 +354,7 @@ const currentDate = computed(() => {
                 </template>
             </Card>
         </div>
+
+        <ConfirmDialog></ConfirmDialog>
     </AppLayout>
 </template>
