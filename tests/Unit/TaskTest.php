@@ -68,7 +68,7 @@ class TaskTest extends TestCase
             'due_date' => '2026-02-22',
         ]);
 
-        $this->assertEquals(Carbon::parse('2026-02-22')->format('m/d/Y'), $task->due_date);
+        $this->assertEquals(Carbon::parse('2026-02-22')->format('Y-m-d'), $task->due_date);
     }
 
     public function test_todo_scope_returns_todo_tasks()

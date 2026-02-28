@@ -26,12 +26,7 @@ class ProjectUploadControllerTest extends TestCase
         $project = Project::factory()->create();
         $file = UploadedFile::fake()->image('project.jpg');
 
-        $this->post(
-            action(ProjectUploadController::class, ['project' => $project]),
-            [
-                'file' => $file
-            ]
-        )->assertRedirect();
+        $this->post(route('projects.upload.store', ['project' => $project]), ['file' => $file])->assertRedirect();
 
         Storage::disk()->assertExists('projects/' . $file->hashName());
         $this->assertCount(1, $project->medias);

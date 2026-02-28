@@ -50,7 +50,7 @@ class ProjectTest extends TestCase
 
         $project = Project::query()->first();
 
-        $this->assertEquals(Carbon::parse($deadlineInput)->format('m/d/Y'), $project->deadline);
+        $this->assertEquals(Carbon::parse($deadlineInput)->format('Y-m-d'), $project->deadline);
     }
 
     public function test_in_progress_scope_filters_correctly()

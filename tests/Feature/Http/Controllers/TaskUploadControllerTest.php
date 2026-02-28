@@ -25,7 +25,7 @@ class TaskUploadControllerTest extends TestCase
         $file = UploadedFile::fake()->image('task.jpg');
 
         $this->post(
-            action(TaskUploadController::class, ['task' => $task]),
+            route('tasks.upload.store', ['task' => $task]),
             [
                 'file' => $file
             ]

@@ -28,7 +28,7 @@ class ClientTest extends TestCase
     {
         $client = Client::factory()->create(['created_at' => '1999-12-31']);
 
-        $this->assertEquals("12/31/1999", $client->created_at);
+        $this->assertEquals("1999-12-31", $client->created_at);
     }
 
     public function test_client_has_many_projects(): void
