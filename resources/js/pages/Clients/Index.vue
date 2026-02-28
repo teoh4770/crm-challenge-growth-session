@@ -2,11 +2,12 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { index, create, edit } from '@/routes/clients';
-import { type BreadcrumbItem, Client } from '@/types';
+import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useConfirm } from 'primevue';
 import ClientController from '@/actions/App/Http/Controllers/ClientController';
+import Pagination from '@/components/Pagination.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -23,9 +24,7 @@ interface ClientIndexProps {
     can: {
         manage_clients: boolean
     },
-    clients: {
-        data: Client[];
-    };
+    clients: object;
 }
 
 defineProps<ClientIndexProps>();
@@ -149,6 +148,8 @@ function deleteClient(id: number) {
                         </template>
                     </Column>
                 </DataTable>
+
+                <Pagination :pagination="clients.meta"/>
             </div>
         </div>
 

@@ -22,19 +22,20 @@ class ProjectController extends Controller
 {
     public function index()
     {
+        $paginateAmount = 5;
         $projects = null;
 
         if (auth()->user()->can('manage projects')) {
-            $projects = Project::with(['client', 'user'])->latest()->get();
+            $projects = Project::with(['client', 'user'])->latest()->paginate($paginateAmount);
         } else if (auth()->user()->can('view own projects')) {
-            $projects = Project::with(['client', 'user'])->where('user_id', auth()->id())->latest()->get();
+            $projects = Project::with(['client', 'user'])->where('user_id', auth()->id())->latest()->paginate($paginateAmount);
         }
 
         return Inertia::render('Projects/Index', [
             'can' => [
                 'delete_project' => auth()->user()->can('manage projects')
             ],
-            'projects' => ProjectResource::collection($projects)
+            'projects' => ProjectResource::collection($projects),
         ]);
     }
 

@@ -13,14 +13,13 @@ class ClientController extends Controller
     public function index()
     {
         $canManageClients = auth()->user()->can('manage clients');
-
-        $clients = Client::all();
+        $clients = Client::query()->paginate(5);
 
         return Inertia::render('Clients/Index', [
             'can' => [
                 'manage_clients' => $canManageClients,
             ],
-            'clients' => ClientResource::collection($clients)
+            'clients' => ClientResource::collection($clients),
         ]);
     }
 

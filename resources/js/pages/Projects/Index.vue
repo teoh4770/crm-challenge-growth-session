@@ -5,6 +5,7 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { useConfirm } from 'primevue';
+import Pagination from '@/components/Pagination.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,14 +22,12 @@ interface ProjectIndexProps {
     can: {
       delete_project: boolean
     },
-    projects: {
-        data: any[];
-    };
+    projects: object;
 }
 
 const confirm = useConfirm();
 
-defineProps<ProjectIndexProps>();
+const props = defineProps<ProjectIndexProps>();
 
 function deleteProject(id: number) {
     confirm.require({
@@ -125,6 +124,8 @@ function deleteProject(id: number) {
                         </template>
                     </Column>
                 </DataTable>
+
+                <Pagination :pagination="projects.meta" />
             </div>
         </div>
 

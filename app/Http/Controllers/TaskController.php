@@ -20,11 +20,12 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = null;
+        $paginateAmount = 5;
 
         if (auth()->user()->can('manage tasks')) {
-            $tasks = Task::with(['project', 'user'])->latest()->get();
+            $tasks = Task::with(['project', 'user'])->latest()->paginate($paginateAmount);
         } else if (auth()->user()->can('view own tasks')) {
-            $tasks = Task::with(['project', 'user'])->where('user_id', auth()->id())->latest()->get();
+            $tasks = Task::with(['project', 'user'])->where('user_id', auth()->id())->latest()->paginate($paginateAmount);
         }
 
         return Inertia::render('Tasks/Index', [

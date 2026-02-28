@@ -5,6 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { useConfirm } from 'primevue';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
+import Pagination from '@/components/Pagination.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,14 +22,12 @@ interface TaskIndexProps {
     can: {
         delete_task: boolean;
     };
-    tasks: {
-        data: any[];
-    };
+    tasks: object;
 }
 
 const confirm = useConfirm();
 
-defineProps<TaskIndexProps>();
+const props = defineProps<TaskIndexProps>();
 
 function deleteTask(taskId: number) {
     confirm.require({
@@ -123,6 +122,8 @@ function deleteTask(taskId: number) {
                         </template>
                     </Column>
                 </DataTable>
+
+                <Pagination :pagination="tasks.meta" />
             </div>
         </div>
 
