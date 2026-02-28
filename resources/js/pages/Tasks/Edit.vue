@@ -4,11 +4,9 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, User } from '@/types';
 import { Form, Head, router } from '@inertiajs/vue3';
+import { useConfirm } from 'primevue';
 import { computed } from 'vue';
 import TaskUploadController from '@/actions/App/Http/Controllers/TaskUploadController';
-import { useConfirm } from 'primevue';
-import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
-import ProjectUploadController from '@/actions/App/Http/Controllers/ProjectUploadController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -91,7 +89,7 @@ function deleteMedia(mediaId: number) {
             severity: 'danger',
         },
         accept: () => {
-            const taskUploadDestroyRoute = TaskUploadController.destroy(mediaId);
+            const taskUploadDestroyRoute =TaskUploadController.destroy(mediaId);
 
             router.visit(taskUploadDestroyRoute.url, {
                 method: taskUploadDestroyRoute.method,
@@ -276,8 +274,9 @@ function deleteMedia(mediaId: number) {
                         <label
                             for="priority"
                             class="block text-sm/6 font-medium text-primary"
-                            >Priority</label
                         >
+                            Priority
+                        </label>
                         <select
                             name="priority"
                             id="priority"

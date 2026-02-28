@@ -52,8 +52,6 @@ const currentDate = computed(() => {
                     :action="TaskController.store()"
                     #default="{ errors }"
                 >
-                    {{ errors }}
-
                     <div class="flex flex-col gap-1">
                         <label
                             for="title"

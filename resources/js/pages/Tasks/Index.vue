@@ -102,10 +102,7 @@ function deleteTask(taskId: number) {
                             <div class="flex gap-1">
                                 <Button
                                     as="a"
-                                    :href="
-                                        TaskController.edit(slotProps.data.id)
-                                            .url
-                                    "
+                                    :href="TaskController.edit(slotProps.data.id).url"
                                     label="Edit"
                                     size="small"
                                     raised
