@@ -6,6 +6,8 @@ import { Head, router } from '@inertiajs/vue3';
 import { useConfirm } from 'primevue';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import Pagination from '@/components/Pagination.vue';
+import { ref } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -79,6 +81,8 @@ function deleteTask(taskId: number) {
                         },
                     }"
                 >
+                    <template #empty>No tasks found. </template>
+                    <template #loading>Loading tasks data. Please wait. </template>
                     <Column field="title" header="Title" :sortable="true" />
                     <Column
                         field="description"

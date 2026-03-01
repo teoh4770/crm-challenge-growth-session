@@ -4,10 +4,11 @@ import { dashboard } from '@/routes';
 import { index, create, edit } from '@/routes/clients';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useConfirm } from 'primevue';
 import ClientController from '@/actions/App/Http/Controllers/ClientController';
 import Pagination from '@/components/Pagination.vue';
+import { FilterMatchMode } from '@primevue/core/api';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,14 +23,20 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface ClientIndexProps {
     can: {
-        manage_clients: boolean
-    },
+        manage_clients: boolean;
+    };
     clients: object;
 }
 
 defineProps<ClientIndexProps>();
 
 const confirm = useConfirm();
+
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS }
+});
+const statuses = ref(['active', 'inactive']);
 
 const createClientRoute = computed(() => {
     return create().url;
@@ -86,6 +93,9 @@ function deleteClient(id: number) {
                 />
 
                 <DataTable
+                    v-model:filters="filters"
+                    :globalFilterFields="['name', 'email']"
+                    filterDisplay="row"
                     :value="clients.data"
                     :dt="{
                         headerCell: {
@@ -94,13 +104,27 @@ function deleteClient(id: number) {
                         },
                     }"
                 >
+                    <template #header>
+                        <div class="flex justify-end">
+                            <IconField>
+                                <InputIcon>
+                                    <i class="pi pi-search" />
+                                </InputIcon>
+                                <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+                            </IconField>
+                        </div>
+                    </template>
+                    <template #empty>No clients found. </template>
+                    <template #loading
+                        >Loading clients data. Please wait.
+                    </template>
                     <Column field="name" header="Name" :sortable="true" />
                     <Column
                         field="email"
                         header="Email"
                         :sortable="true"
                     ></Column>
-                    <Column field="status" header="Status" :sortable="true">
+                    <Column field="status" header="Status" :sortable="true" :showFilterMenu="false">
                         <template #body="slotProps">
                             <Tag
                                 :value="slotProps.data.status"
@@ -108,6 +132,13 @@ function deleteClient(id: number) {
                                     getStatusTagSeverity(slotProps.data.status)
                                 "
                             />
+                        </template>
+                        <template #filter="{ filterModel, filterCallback }">
+                            <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses" placeholder="Select One" :showClear="true">
+                                <template #option="slotProps">
+                                    <Tag :value="slotProps.option" />
+                                </template>
+                            </Select>
                         </template>
                     </Column>
                     <Column
@@ -149,10 +180,9 @@ function deleteClient(id: number) {
                     </Column>
                 </DataTable>
 
-                <Pagination :pagination="clients.meta"/>
+                <Pagination :pagination="clients.meta" />
             </div>
         </div>
-
 
         <ConfirmDialog></ConfirmDialog>
     </AppLayout>
